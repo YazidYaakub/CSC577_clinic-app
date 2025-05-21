@@ -105,5 +105,5 @@ class Database {
         return $this->conn->rollBack();
     }
 }
-?>
+//
 
