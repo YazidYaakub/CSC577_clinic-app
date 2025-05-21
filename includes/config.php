@@ -11,8 +11,12 @@ session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// centralized based url 
-define('BASE_URL', '/');
+// centralized based url
+$scriptName = $_SERVER['SCRIPT_NAME'];
+$basePath = rtrim(str_replace(basename($scriptName), '', $scriptName), '/');
+define('BASE_URL', $basePath ? $basePath . '/' : '/');
+ 
+//define('BASE_URL', '/');
 
 // Database configuration
 define('DB_PATH', dirname(dirname(__FILE__)) . '/database/healthcare.sqlite');
