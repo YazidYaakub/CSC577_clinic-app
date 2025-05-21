@@ -261,5 +261,5 @@ function createNotification($userId, $message) {
         return false;
     }
 }
-?>
+//
 
