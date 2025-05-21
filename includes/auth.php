@@ -327,5 +327,5 @@ function updateProfile($userId, $userData) {
         ];
     }
 }
-?>
+//
 
