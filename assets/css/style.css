@@ -1,0 +1,197 @@
+/* 
+ * Custom Styles for MySihat Appointment System
+ */
+
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+/* Navbar styles */
+.navbar-brand {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Card styles */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    font-weight: 600;
+}
+
+/* Dashboard Stat Cards */
+.stat-card {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card .card-body {
+    padding: 1.5rem;
+}
+
+.stat-card .card-title {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6c757d;
+}
+
+.stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .stat-icon {
+    font-size: 3rem;
+    opacity: 0.2;
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+}
+
+/* Appointment cards */
+.appointment-card {
+    border-left: 5px solid #0d6efd;
+    transition: box-shadow 0.3s ease;
+}
+
+.appointment-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-card.status-confirmed {
+    border-left-color: #198754;
+}
+
+.appointment-card.status-pending {
+    border-left-color: #ffc107;
+}
+
+.appointment-card.status-cancelled {
+    border-left-color: #dc3545;
+}
+
+.appointment-card.status-completed {
+    border-left-color: #6c757d;
+}
+
+/* Doctor availability calendar */
+.availability-table th, .availability-table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.time-slot {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.time-slot:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.time-slot.selected {
+    background-color: rgba(13, 110, 253, 0.2);
+}
+
+.time-slot.booked {
+    background-color: rgba(220, 53, 69, 0.1);
+    cursor: not-allowed;
+}
+
+/* Form styles */
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Login/Register pages */
+.auth-card {
+    max-width: 450px;
+    margin: 2rem auto;
+}
+
+.auth-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Patient medical history */
+.medical-record {
+    border-left: 5px solid #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.prescription-item {
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-card .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .stat-card .stat-icon {
+        font-size: 2rem;
+    }
+    
+    .auth-card {
+        margin: 1rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
+
