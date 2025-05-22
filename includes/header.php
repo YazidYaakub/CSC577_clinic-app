@@ -19,7 +19,7 @@ require_once 'functions.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
     
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css"">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>../assets/css/style.css">
     
     <?php if (isset($extraStyles)) echo $extraStyles; ?>
 </head>

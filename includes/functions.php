@@ -182,7 +182,7 @@ function getAvailableTimeSlots($doctorId, $date) {
     // Get doctor's availability for the day
     $availability = $db->fetchOne(
         "SELECT * FROM doctor_availability 
-         WHERE doctor_id = ? AND day_of_week = ? AND is_available = 1",
+         WHERE doctor_id = ? AND LOWER(day_of_week) = LOWER(?) AND is_available = 1",
         [$doctorId, $dayOfWeek]
     );
     

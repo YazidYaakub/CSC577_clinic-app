@@ -8,6 +8,7 @@ require_once '../includes/auth.php';
 
 // Ensure user is logged in and is a patient
 requireLogin(ROLE_PATIENT, BASE_URL . 'login.php');
+$patientName = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Patient';
 
 $userId = getCurrentUserId();
 $db = Database::getInstance();
@@ -71,7 +72,7 @@ include '../includes/header.php';
 
 <div class="row">
     <div class="col-md-12">
-        <h1 class="mb-4">Patient Dashboard</h1>
+        <h1 class="mb-4"><?php echo htmlspecialchars($patientName);?>'s Dashboard</h1>
         
         <!-- Summary Stats -->
         <div class="row mb-4">

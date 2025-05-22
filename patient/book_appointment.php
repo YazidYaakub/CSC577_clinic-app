@@ -209,20 +209,97 @@ include '../includes/header.php';
 
 <?php
 // Add custom script
+$advanceDays = ADVANCE_BOOKING_DAYS;
 $extraScripts = <<<EOT
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Set datepicker constraints
-        $('.datepicker').datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose: true,
-            startDate: '+1d',  // Start from tomorrow
-            endDate: '+{$ADVANCE_BOOKING_DAYS}d'    // Limit based on config
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    const doctorSelect = document.getElementById('doctor_id');
+    const dateInput = document.getElementById('appointment_date');
+    const timeSlotsContainer = document.getElementById('time_slots');
+    const timeInput = document.getElementById('selected_time');
+    const timeError = document.getElementById('time_slots_error');
+
+    $('.datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        startDate: '+1d',
+        endDate: '+{$advanceDays}d'
     });
+
+    function toggleDateField() {
+        if (doctorSelect.value) {
+            dateInput.removeAttribute('disabled');
+            \$(dateInput).datepicker('update');
+        } else {
+            dateInput.setAttribute('disabled', 'disabled');
+            dateInput.value = '';
+            timeSlotsContainer.innerHTML = '<p class="text-muted">Please select a doctor and date to see available time slots.</p>';
+            timeInput.value = '';
+        }
+    }
+
+    function loadAvailableSlots() {
+        const doctorId = doctorSelect.value;
+        const date = dateInput.value;
+
+        if (doctorId && date) {
+            timeSlotsContainer.innerHTML = '<p class="text-muted">Loading available time slots...</p>';
+            timeError.classList.add('d-none');
+
+            fetch('get_available_slots.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `doctor_id=\${doctorId}&date=\${date}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.slots.length > 0) {
+                        let html = '<div class="btn-group w-100 flex-wrap" role="group">';
+                        data.slots.forEach(slot => {
+                            html += `<button type="button" class="btn btn-outline-primary m-1 slot-btn" data-time="\${slot.value}">\${slot.display}</button>`;
+                        });
+                        html += '</div>';
+                        timeSlotsContainer.innerHTML = html;
+
+                        document.querySelectorAll('.slot-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+                                this.classList.add('active');
+                                timeInput.value = this.getAttribute('data-time');
+                            });
+                        });
+                    } else {
+                        timeSlotsContainer.innerHTML = '<p class="text-muted">No available slots for this date.</p>';
+                        timeInput.value = '';
+                    }
+                } else {
+                    timeSlotsContainer.innerHTML = '';
+                    timeError.textContent = data.message || 'Unable to load time slots.';
+                    timeError.classList.remove('d-none');
+                    timeInput.value = '';
+                }
+            })
+            .catch(() => {
+                timeSlotsContainer.innerHTML = '';
+                timeError.textContent = 'Error loading time slots.';
+                timeError.classList.remove('d-none');
+            });
+        }
+    }
+
+    doctorSelect.addEventListener('change', function () {
+        toggleDateField();
+        timeSlotsContainer.innerHTML = '<p class="text-muted">Please select a doctor and date to see available time slots.</p>';
+        timeInput.value = '';
+    });
+
+    dateInput.addEventListener('change', loadAvailableSlots);
+
+    toggleDateField(); // Initial
+});
 </script>
 EOT;
-
 include '../includes/footer.php';
 ?>
 
