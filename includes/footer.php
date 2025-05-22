@@ -26,8 +26,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     
     <!-- Custom Scripts --> 
-    <script src="/clinic-app/assets/js/script.js"></script>
-    <script src="/clinic-app/assets/js/validation.js"></script>
+    <script src="/assets/js/script.js"></script>
+    <script src="/assets/js/validation.js"></script>
     
     <?php if (isset($extraScripts)) echo $extraScripts; ?>
 </body>
