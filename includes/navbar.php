@@ -16,6 +16,7 @@
                         <i class="fas fa-home"></i> Home
                     </a>
                 </li>
+                <?php endif; ?>
                 
                 <?php if (isLoggedIn()): ?>
                     <?php // Navigation for logged-in users (Patient, Doctor, Admin) ?>
