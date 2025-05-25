@@ -193,7 +193,7 @@ $extraScripts = <<<EOT
                 <div class="container">
                     <div class="row mb-4">
                         <div class="col-12">
-                            <h2 class="text-center">${SITE_NAME}</h2>
+                            <h2 class="text-center">{$SITE_NAME}</h2>
                             <h3 class="text-center">Medical Record</h3>
                         </div>
                     </div>
@@ -221,5 +221,5 @@ $extraScripts = <<<EOT
 EOT;
 
 include '../includes/footer.php';
-?>
+
 
