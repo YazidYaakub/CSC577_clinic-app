@@ -51,7 +51,7 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <?php if (hasRole(ROLE_PATIENT)): ?>
                                 <li>
-                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>/profile.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>profile.php">
                                         <i class="fas fa-id-card"></i> My Profile
                                     </a>
                                 </li> 
