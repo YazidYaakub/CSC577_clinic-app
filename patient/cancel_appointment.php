@@ -57,7 +57,7 @@ try {
     $db->beginTransaction();
     
     $db->update(
-        "UPDATE appointments SET status = 'cancelled', updated_at = NOW() WHERE id = ?",
+        "UPDATE appointments SET status = 'cancelled', updated_at = datetime('now') WHERE id = ?",
         [$appointmentId]
     );
     
