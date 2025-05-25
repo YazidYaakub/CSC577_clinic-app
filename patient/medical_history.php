@@ -167,7 +167,7 @@ include '../includes/header.php';
 
 <?php
 // Add custom print script
-$siteName = htmlspecialchars($SITE_NAME, ENT_QUOTES, 'UTF-8');
+$siteName = htmlspecialchars(SITE_NAME, ENT_QUOTES, 'UTF-8');
 $extraScripts = <<<EOT
 <script>
     // Print individual medical record
