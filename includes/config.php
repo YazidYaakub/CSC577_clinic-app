@@ -22,7 +22,7 @@ define('BASE_URL', $basePath ? $basePath . '/' : '/');
 define('DB_PATH', dirname(dirname(__FILE__)) . '/database/healthcare.sqlite');
 
 // Application settings
-define('SITE_NAME', 'MySihat Appointment System');
+define('SITE_NAME', 'MySihat');
 define('SITE_URL', 'http://' . $_SERVER['HTTP_HOST']);
 define('APP_ROOT', dirname(dirname(__FILE__)));
 
