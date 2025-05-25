@@ -1,6 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand" href="<?php echo BASE_URL; ?>">
+        <a class="navbar-brand" href="<?php 
+            echo (isLoggedIn() && hasRole(ROLE_PATIENT)) 
+                ? BASE_URL . 'patient/dashboard.php' 
+                : BASE_URL; 
+        ?>">
             <i class="fas fa-hospital-alt me-2"></i>
             <?php echo SITE_NAME; ?>
         </a>
