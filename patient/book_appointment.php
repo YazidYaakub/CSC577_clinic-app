@@ -153,8 +153,7 @@ include '../includes/header.php';
                             <option value="">-- Select a doctor --</option>
                             <?php foreach ($doctors as $doctor): ?>
                                 <option value="<?php echo $doctor['id']; ?>" <?php echo $formData['doctor_id'] == $doctor['id'] ? 'selected' : ''; ?>>
-                                    Dr. <?php echo $doctor['first_name'] . ' ' . $doctor['last_name']; ?> - <?php echo $doctor['specialization']; ?> 
-                                    ($<?php echo number_format($doctor['consultation_fee'], 2); ?>)
+                                    Dr. <?php echo $doctor['first_name'] . ' ' . $doctor['last_name']; ?> - <?php echo $doctor['specialization']; ?>  
                                 </option>
                             <?php endforeach; ?>
                         </select>
