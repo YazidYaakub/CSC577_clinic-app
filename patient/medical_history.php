@@ -167,6 +167,7 @@ include '../includes/header.php';
 
 <?php
 // Add custom print script
+$siteName = htmlspecialchars($SITE_NAME);
 $extraScripts = <<<EOT
 <script>
     // Print individual medical record
@@ -175,7 +176,9 @@ $extraScripts = <<<EOT
         const recordContent = $(this).closest('.accordion-item').find('.accordion-body').html();
         
         // Create a new window for printing
+        const siteName = "{$siteName}";
         const printWindow = window.open('', '_blank');
+      
         printWindow.document.write(`
             <!DOCTYPE html>
             <html>
@@ -193,7 +196,7 @@ $extraScripts = <<<EOT
                 <div class="container">
                     <div class="row mb-4">
                         <div class="col-12">
-                            <h2 class="text-center">{$SITE_NAME}</h2>
+                            <h2 class="text-center">${siteName}</h2>
                             <h3 class="text-center">Medical Record</h3>
                         </div>
                     </div>
