@@ -29,7 +29,7 @@
                                 ? BASE_URL . 'dashboard.php' 
                                 : BASE_URL . 'dashboard.php'; 
                         ?>">
-                            <i class="fas fa-home"></i> Dashboard
+                            <i class="fas fa-home"></i> Home
                         </a>
                     </li>
                 <?php endif; ?>
