@@ -5,9 +5,9 @@
                 ? (hasRole(ROLE_PATIENT) 
                     ? BASE_URL . 'dashboard.php'
                     : (hasRole(ROLE_DOCTOR)
-                        ? BASE_URL . 'doctor/dashboard.php'
+                        ? BASE_URL . 'dashboard.php'
                         : (hasRole(ROLE_ADMIN)
-                            ? BASE_URL . 'admin/dashboard.php'
+                            ? BASE_URL . 'dashboard.php'
                             : BASE_URL)))
                 : BASE_URL;
         ?>">
@@ -84,12 +84,12 @@
                                 </li>
                             <?php elseif (hasRole(ROLE_ADMIN)): ?>
                                 <li>
-                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>admin/profile.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>profile.php">
                                         <i class="fas fa-id-card"></i> My Profile
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>admin/settings.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>settings.php">
                                         <i class="fas fa-cog"></i> System Settings
                                     </a>
                                 </li>
