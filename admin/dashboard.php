@@ -28,7 +28,7 @@ try {
          FROM appointments a 
          JOIN users p ON a.patient_id = p.id 
          JOIN users d ON a.doctor_id = d.id 
-         WHERE a.appointment_date = CURDATE() 
+         WHERE a.appointment_date = DATE('now') 
          ORDER BY a.appointment_time"
     );
     
@@ -51,10 +51,13 @@ try {
     $currentYear = date('Y');
     $monthlyStats = $db->fetchAll(
         "SELECT MONTH(appointment_date) as month, COUNT(*) as count 
-         FROM appointments 
-         WHERE YEAR(appointment_date) = ? 
-         GROUP BY MONTH(appointment_date) 
-         ORDER BY month",
+         FROM appointments
+         WHERE strftime('%Y', appointment_date) = ?
+         GROUP BY strftime('%m', appointment_date)
+         ORDER BY strftime('%m', appointment_date)"   
+         //WHERE YEAR(appointment_date) = ? 
+         //GROUP BY MONTH(appointment_date) 
+         //ORDER BY month
         [$currentYear]
     );
     
