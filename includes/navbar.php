@@ -3,7 +3,9 @@
         <a class="navbar-brand" href="<?php 
             echo (isLoggedIn() && hasRole(ROLE_PATIENT)) 
                 ? BASE_URL . 'dashboard.php' 
-                : BASE_URL; 
+                : (isLoggedIn() && hasRole(ROLE_DOCTOR) 
+                  ? BASE_URL . 'doctor/dashboard.php' 
+                  : BASE_URL);
         ?>">
             <i class="fas fa-hospital-alt me-2"></i>
             <?php echo SITE_NAME; ?>
@@ -14,19 +16,22 @@
         
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <?php if (!isLoggedIn() || !hasRole(ROLE_PATIENT)): ?>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                </li>
-                <?php endif; ?>
-                <?php if (!isLoggedIn() || !hasRole(ROLE_DOCTOR)): ?>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                </li>
+                <?php if (!isLoggedIn()): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>">
+                           <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                <?php elseif (hasRole(ROLE_PATIENT) || hasRole(ROLE_DOCTOR)): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>" href="<?php 
+                            echo hasRole(ROLE_PATIENT) 
+                                ? BASE_URL . 'dashboard.php' 
+                                : BASE_URL . 'doctor/dashboard.php'; 
+                        ?>">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
                 <?php endif; ?>
                 
                 <?php if (isLoggedIn()): ?>
