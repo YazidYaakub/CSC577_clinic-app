@@ -406,16 +406,16 @@ include '../includes/header.php';
 
 <?php
 // Add custom print script
+$siteName = htmlspecialchars(SITE_NAME, ENT_QUOTES, 'UTF-8');
 $extraScripts = <<<EOT
 <script>
-    // Print individual medical record
     $('.print-record').on('click', function() {
+        const siteName = "{$siteName}";
         const recordId = $(this).data('record-id');
         const recordContent = $(this).closest('.accordion-item').find('.accordion-body').html();
-        
-        // Create a new window for printing
+
         const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
+        printWindow.document.write(\`
             <!DOCTYPE html>
             <html>
             <head>
@@ -423,20 +423,18 @@ $extraScripts = <<<EOT
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
                 <style>
                     body { padding: 20px; }
-                    @media print {
-                        .no-print { display: none !important; }
-                    }
+                    @media print { .no-print { display: none !important; } }
                 </style>
             </head>
             <body>
                 <div class="container">
                     <div class="row mb-4">
                         <div class="col-12">
-                            <h2 class="text-center">${SITE_NAME}</h2>
+                            <h2 class="text-center">\\\${siteName}</h2>
                             <h3 class="text-center">Medical Record</h3>
                         </div>
                     </div>
-                    ${recordContent}
+                    \\\${recordContent}
                     <div class="row mt-5">
                         <div class="col-12 text-center no-print">
                             <button class="btn btn-primary" onclick="window.print()">Print</button>
@@ -444,16 +442,11 @@ $extraScripts = <<<EOT
                     </div>
                 </div>
                 <script>
-                    // Auto print
-                    window.onload = function() {
-                        setTimeout(function() {
-                            window.print();
-                        }, 500);
-                    };
-                </script>
+                    window.onload = function() { setTimeout(function() { window.print(); }, 500); };
+                <\/script>
             </body>
             </html>
-        `);
+        \`);
         printWindow.document.close();
     });
 </script>
