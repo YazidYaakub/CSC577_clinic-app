@@ -21,6 +21,13 @@
                     </a>
                 </li>
                 <?php endif; ?>
+                <?php if (!isLoggedIn() || !hasRole(ROLE_DOCTOR)): ?>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <?php endif; ?>
                 
                 <?php if (isLoggedIn()): ?>
                     <?php // Navigation for logged-in users (Patient, Doctor, Admin) ?>
@@ -57,12 +64,12 @@
                                 </li> 
                             <?php elseif (hasRole(ROLE_DOCTOR)): ?>
                                 <li>
-                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>doctor/profile.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>profile.php">
                                         <i class="fas fa-id-card"></i> My Profile
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>doctor/availability.php">
+                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>availability.php">
                                         <i class="fas fa-calendar-alt"></i> My Availability
                                     </a>
                                 </li>
