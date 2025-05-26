@@ -237,7 +237,7 @@ include '../includes/header.php';
                         <p><strong>Specialization:</strong> <?php echo $doctorDetails['specialization']; ?></p>
                         <p><strong>Qualification:</strong> <?php echo $doctorDetails['qualification']; ?></p>
                         <p><strong>Experience:</strong> <?php echo $doctorDetails['experience_years']; ?> years</p>
-                        <p><strong>Consultation Fee:</strong> $<?php echo number_format($doctorDetails['consultation_fee'], 2); ?></p>
+                      
                         
                         <div class="mt-3">
                             <a href="profile.php" class="btn btn-outline-primary btn-sm">Edit Profile</a>
