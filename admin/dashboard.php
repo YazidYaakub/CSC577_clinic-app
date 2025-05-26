@@ -23,14 +23,14 @@ try {
     
     // Get today's appointments
     $todayAppointments = $db->fetchAll(
-        "SELECT a.*, p.first_name as patient_first_name, p.last_name as patient_last_name, 
-                d.first_name as doctor_first_name, d.last_name as doctor_last_name 
-         FROM appointments a 
-         JOIN users p ON a.patient_id = p.id 
-         JOIN users d ON a.doctor_id = d.id 
-         WHERE a.appointment_date = DATE('now') 
-         ORDER BY a.appointment_time"
-    );
+      "SELECT a.*, p.first_name as patient_first_name, p.last_name as patient_last_name, 
+              d.first_name as doctor_first_name, d.last_name as doctor_last_name 
+      FROM appointments a 
+      JOIN users p ON a.patient_id = p.id 
+      JOIN users d ON a.doctor_id = d.id 
+      WHERE a.appointment_date = DATE('now') 
+      ORDER BY a.appointment_time"
+      );
     
     // Get recent registrations
     $recentUsers = $db->fetchAll(
@@ -50,16 +50,16 @@ try {
     // Get appointment stats by month for the current year
     $currentYear = date('Y');
     $monthlyStats = $db->fetchAll(
-        "SELECT MONTH(appointment_date) as month, COUNT(*) as count 
-         FROM appointments
-         WHERE strftime('%Y', appointment_date) = ?
-         GROUP BY strftime('%m', appointment_date)
-         ORDER BY strftime('%m', appointment_date)"   
+        "SELECT strftime('%m', appointment_date) as month, COUNT(*) as count 
+        FROM appointments 
+        WHERE strftime('%Y', appointment_date) = ? 
+        GROUP BY strftime('%m', appointment_date) 
+        ORDER BY strftime('%m', appointment_date)",
+        [$currentYear]
+    );   
          //WHERE YEAR(appointment_date) = ? 
          //GROUP BY MONTH(appointment_date) 
          //ORDER BY month
-        [$currentYear]
-    );
     
     // Format monthly stats for JavaScript chart
     $chartMonths = [];
@@ -71,7 +71,8 @@ try {
     }
     
     foreach ($monthlyStats as $stat) {
-        $monthIndex = $stat['month'] - 1; // Arrays are 0-indexed
+        //$monthIndex = $stat['month'] - 1; // Arrays are 0-indexed
+        $monthIndex = (int)$stat['month'] - 1;
         $chartData[$monthIndex] = (int) $stat['count'];
     }
     
