@@ -1,13 +1,15 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="<?php 
-            echo (isLoggedIn() && hasRole(ROLE_PATIENT)) 
-                ? BASE_URL . 'dashboard.php' 
-                : (isLoggedIn() && hasRole(ROLE_DOCTOR) 
-                  ? BASE_URL . 'dashboard.php'
-                : (isLoggedIn() && hasRole(ROLE_ADMIN) 
-                  ? BASE_URL . 'dashboard.php' 
-                  : BASE_URL);
+            echo isLoggedIn()
+                ? (hasRole(ROLE_PATIENT) 
+                    ? BASE_URL . 'dashboard.php'
+                    : (hasRole(ROLE_DOCTOR)
+                        ? BASE_URL . 'doctor/dashboard.php'
+                        : (hasRole(ROLE_ADMIN)
+                            ? BASE_URL . 'admin/dashboard.php'
+                            : BASE_URL)))
+                : BASE_URL;
         ?>">
             <i class="fas fa-hospital-alt me-2"></i>
             <?php echo SITE_NAME; ?>
