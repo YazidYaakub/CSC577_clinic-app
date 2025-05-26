@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Update appointment status to completed
             $db->update(
-                "UPDATE appointments SET status = 'completed', updated_at = NOW() WHERE id = ?",
+                "UPDATE appointments SET status = 'completed', updated_at = datetime('now') WHERE id = ?",
                 [$appointmentId]
             );
             
