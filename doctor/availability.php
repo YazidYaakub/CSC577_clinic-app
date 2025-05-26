@@ -18,9 +18,17 @@ $successMessage = '';
 // Get current availability
 try {
     $availability = $db->fetchAll(
-        "SELECT * FROM doctor_availability WHERE doctor_id = ? ORDER BY FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')",
+        "SELECT * FROM doctor_availability WHERE doctor_id = ?", 
+        //ORDER BY FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')",
         [$userId]
     );
+    // Define standard order
+    $daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    // Reorder fetched rows manually
+    usort($availability, function ($a, $b) use ($daysOfWeek) {
+        return array_search($a['day_of_week'], $daysOfWeek) <=> array_search($b['day_of_week'], $daysOfWeek);
+    });
     
     // Create an array for easier access
     $availabilityByDay = [];
