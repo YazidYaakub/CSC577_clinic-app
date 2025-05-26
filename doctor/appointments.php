@@ -20,7 +20,7 @@ $appointmentId = $viewingSpecific ? (int) $_GET['id'] : 0;
 $filter = sanitize($_GET['filter'] ?? 'upcoming');
 $date = sanitize($_GET['date'] ?? '');
 $searchTerm = sanitize($_GET['search'] ?? '');
-
+$today = date('Y-m-d'); 
 try {
     if ($viewingSpecific) {
         // Get details of a specific appointment
@@ -73,10 +73,12 @@ try {
         else {
             switch ($filter) {
                 case 'today':
-                    $query .= "AND a.appointment_date = CURDATE() ";
+                    $query .= "AND a.appointment_date = ? ";
+                    $params[] = $today;
                     break;
                 case 'upcoming':
-                    $query .= "AND a.appointment_date >= CURDATE() AND a.status IN ('pending', 'confirmed') ";
+                    $query .= "AND a.appointment_date >= ? AND a.status IN ('pending', 'confirmed') ";
+                    $params[] = $today;
                     break;
                 case 'pending':
                     $query .= "AND a.status = 'pending' ";
@@ -92,7 +94,8 @@ try {
                     break;
                 default:
                     $filter = 'upcoming'; // Default to upcoming
-                    $query .= "AND a.appointment_date >= CURDATE() AND a.status IN ('pending', 'confirmed') ";
+                    $query .= "AND a.appointment_date >= ? AND a.status IN ('pending', 'confirmed') ";
+                    $params[] = $today;
             }
         }
         
