@@ -4,6 +4,8 @@
             echo (isLoggedIn() && hasRole(ROLE_PATIENT)) 
                 ? BASE_URL . 'dashboard.php' 
                 : (isLoggedIn() && hasRole(ROLE_DOCTOR) 
+                  ? BASE_URL . 'dashboard.php'
+                : (isLoggedIn() && hasRole(ROLE_ADMIN) 
                   ? BASE_URL . 'dashboard.php' 
                   : BASE_URL);
         ?>">
