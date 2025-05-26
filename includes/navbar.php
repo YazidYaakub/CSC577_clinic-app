@@ -4,7 +4,7 @@
             echo (isLoggedIn() && hasRole(ROLE_PATIENT)) 
                 ? BASE_URL . 'dashboard.php' 
                 : (isLoggedIn() && hasRole(ROLE_DOCTOR) 
-                  ? BASE_URL . 'doctor/dashboard.php' 
+                  ? BASE_URL . 'dashboard.php' 
                   : BASE_URL);
         ?>">
             <i class="fas fa-hospital-alt me-2"></i>
@@ -27,7 +27,7 @@
                         <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>" href="<?php 
                             echo hasRole(ROLE_PATIENT) 
                                 ? BASE_URL . 'dashboard.php' 
-                                : BASE_URL . 'doctor/dashboard.php'; 
+                                : BASE_URL . 'dashboard.php'; 
                         ?>">
                             <i class="fas fa-home"></i> Dashboard
                         </a>
