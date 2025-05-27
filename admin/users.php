@@ -527,54 +527,61 @@ include '../includes/header.php';
         <?php else: ?>
             <!-- All Users View -->
             <div class="card mb-4">
-                <div class="card-header">
-                 <h5><i class="fas fa-user-plus text-primary me-2"></i>Add New User</h5>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-user-plus text-primary me-2"></i>Add New User
+        </h5>
+        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addUserForm" aria-expanded="false" aria-controls="addUserForm">
+            Toggle Form
+        </button>
+    </div>
+    <div class="collapse" id="addUserForm">
+        <div class="card-body">
+            <form method="post" action="">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Username*</label>
+                        <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Email*</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Role*</label>
+                        <select class="form-select" name="role" required>
+                            <option value="">Select role</option>
+                            <option value="patient">Patient</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">First Name*</label>
+                        <input type="text" class="form-control" name="first_name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Last Name*</label>
+                        <input type="text" class="form-control" name="last_name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Password*</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Confirm Password*</label>
+                        <input type="password" class="form-control" name="confirm_password" required>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form method="post" action="">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Username*</label>
-                                <input type="text" class="form-control" name="username" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Email*</label>
-                                <input type="email" class="form-control" name="email" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Role*</label>
-                                <select class="form-select" name="role" required>
-                                    <option value="">Select role</option>
-                                    <option value="patient">Patient</option>
-                                    <option value="doctor">Doctor</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">First Name*</label>
-                                <input type="text" class="form-control" name="first_name" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Last Name*</label>
-                                <input type="text" class="form-control" name="last_name" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Password*</label>
-                                <input type="password" class="form-control" name="password" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Confirm Password*</label>
-                            <input type="password" class="form-control" name="confirm_password" required>
-                            </div>
-                        </div>
-                        <div class="mt-4 d-grid">
-                            <button type="submit" name="create_user" class="btn btn-success">
-                                <i class="fas fa-user-plus me-2"></i> Create User
-                            </button>
-                        </div>
-                    </form>
-                  </div>
-            </div>            
+                <div class="mt-4 d-grid">
+                    <button type="submit" name="create_user" class="btn btn-success">
+                        <i class="fas fa-user-plus me-2"></i> Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>            
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Manage Users</h1>
             </div>
