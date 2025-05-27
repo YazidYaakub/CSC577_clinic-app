@@ -741,12 +741,12 @@ include '../includes/header.php';
     </div>
 </div>
 
-<?php 
 <script>
 function toggleDoctorFields(role) {
     const docFields = document.getElementById('doctorFields');
     docFields.style.display = role === 'doctor' ? 'flex' : 'none';
 }
 </script>
-include '../includes/footer.php'; ?>
+
+<?php include '../includes/footer.php'; ?>
 
