@@ -184,17 +184,7 @@ include 'includes/header.php';
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="role" class="form-label">Register as*</label>
-                        <select class="form-select <?php echo isset($errors['role']) ? 'is-invalid' : ''; ?>" id="role" name="role" required>
-                            <option value="" selected disabled>Select role</option>
-                            <option value="<?php echo ROLE_PATIENT; ?>" <?php echo $formData['role'] === ROLE_PATIENT ? 'selected' : ''; ?>>Patient</option>
-                            <option value="<?php echo ROLE_DOCTOR; ?>" <?php echo $formData['role'] === ROLE_DOCTOR ? 'selected' : ''; ?>>Doctor</option>
-                        </select>
-                        <?php if (isset($errors['role'])): ?>
-                            <div class="invalid-feedback"><?php echo $errors['role']; ?></div>
-                        <?php endif; ?>
-                    </div>
+                    
                     
                     <div class="row mb-3">
                         <div class="col-md-6">

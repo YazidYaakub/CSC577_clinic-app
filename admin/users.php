@@ -536,10 +536,7 @@ include '../includes/header.php';
                                         <i class="fas fa-trash-alt me-2"></i> Delete User
                                     </button>
                                 </form>
-                                <button type="button" class="btn btn-outline-danger" 
-                                        onclick="if(confirm('Are you sure you want to deactivate this account? This action cannot be undone.')) alert('Account deactivation feature will be implemented in future updates.');">
-                                    <i class="fas fa-user-slash me-2"></i> Deactivate Account
-                                </button>
+                                
                             </div>
                         </div>
                     </div>
