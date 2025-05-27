@@ -170,47 +170,52 @@ include '../includes/header.php';
 $siteName = htmlspecialchars(SITE_NAME, ENT_QUOTES, 'UTF-8');
 $extraScripts = <<<EOT
 <script>
-    // Print individual medical record
-    \$('.print-record').on('click', function() {
-        const siteName = "{$siteName}";
-        const recordId = \$(this).data('record-id');
-        const recordContent = \$(this).closest('.accordion-item').find('.accordion-body').html();
+document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.print-record');
+    buttons.forEach(function(button) {
+        button.addEventListener('click', function () {
+            const siteName = "{$siteName}";
+            const recordContent = this.closest('.accordion-item').querySelector('.accordion-body').innerHTML;
 
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(\`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Medical Record</title>
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-                <style>
-                    body { padding: 20px; }
-                    @media print { .no-print { display: none !important; } }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h2 class="text-center">\\\${siteName}</h2>
-                            <h3 class="text-center">Medical Record</h3>
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Medical Record</title>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+                    <style>
+                        body { padding: 20px; }
+                        @media print { .no-print { display: none !important; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h2 class="text-center">\${siteName}</h2>
+                                <h3 class="text-center">Medical Record</h3>
+                            </div>
+                        </div>
+                        \${recordContent}
+                        <div class="row mt-5">
+                            <div class="col-12 text-center no-print">
+                                <button class="btn btn-primary" onclick="window.print()">Print</button>
+                            </div>
                         </div>
                     </div>
-                    \\\${recordContent}
-                    <div class="row mt-5">
-                        <div class="col-12 text-center no-print">
-                            <button class="btn btn-primary" onclick="window.print()">Print</button>
-                        </div>
-                    </div>
-                </div>
-                <script>
-                    window.onload = function() { setTimeout(function() { window.print(); }, 500); };
-                <\/script>
-            </body>
-            </html>
-        \`);
-        printWindow.document.close();
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() { window.print(); }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        });
     });
+});
 </script>
 EOT;
 echo $extraScripts;
