@@ -70,17 +70,17 @@ The system comes with pre-configured test accounts:
 
 ### Administrator
 - **Username**: `admin`
-- **Password**: `admin123`
+- **Password**: `Admin123!`
 - **Access**: Full system administration
 
 ### Doctor
-- **Username**: `doctor`
-- **Password**: `admin123`
-- **Specialization**: Cardiology
+- **Username**: `doc1` -- doc1, doc2, doc3 #samepassword
+- **Password**: `Doctor123!`
+- **Specialization**: Physician
 
 ### Patient
-- **Username**: `patient`
-- **Password**: `admin123`
+- **Username**: `irfan` --qaiyum, atiqah, aizat #sampassword
+- **Password**: `User123!`
 
 ## 📁 Project Structure
 
