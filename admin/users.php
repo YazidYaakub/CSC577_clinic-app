@@ -528,9 +528,7 @@ include '../includes/header.php';
             <!-- All Users View -->
             <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-            <i class="fas fa-user-plus text-primary me-2"></i>Add New User
-        </h5>
+        <h5 class="mb-0"><i class="fas fa-user-plus text-primary me-2"></i> Add New User</h5>
         <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addUserForm" aria-expanded="false" aria-controls="addUserForm">
             Add Users
         </button>
@@ -567,10 +565,34 @@ include '../includes/header.php';
                     <div class="col-md-6">
                         <label class="form-label">Password*</label>
                         <input type="password" class="form-control" name="password" required>
+                        <div class="form-text text-muted">
+                            Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Confirm Password*</label>
                         <input type="password" class="form-control" name="confirm_password" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" name="phone">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Date of Birth (YYYY-MM-DD)</label>
+                        <input type="date" class="form-control" name="date_of_birth">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Gender</label>
+                        <select class="form-select" name="gender">
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" name="address" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="mt-4 d-grid">
@@ -581,8 +603,7 @@ include '../includes/header.php';
             </form>
         </div>
     </div>
-</div>            
-            <div class="d-flex justify-content-between align-items-center mb-4">
+</div>            <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Manage Users</h1>
             </div>
             
