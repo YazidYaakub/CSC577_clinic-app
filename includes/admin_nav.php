@@ -13,9 +13,5 @@
         <i class="fas fa-calendar-alt"></i> All Appointments
     </a>
 </li>
-<li class="nav-item">
-    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>reports.php">
-        <i class="fas fa-chart-bar"></i> Reports
-    </a>
-</li>
+
 
