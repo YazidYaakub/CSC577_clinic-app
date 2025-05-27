@@ -526,84 +526,97 @@ include '../includes/header.php';
             
         <?php else: ?>
             <!-- All Users View -->
-            <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-user-plus text-primary me-2"></i> Add New User</h5>
-        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addUserForm" aria-expanded="false" aria-controls="addUserForm">
-            Add Users
-        </button>
-    </div>
-    <div class="collapse" id="addUserForm">
-        <div class="card-body">
             <form method="post" action="">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Username*</label>
-                        <input type="text" class="form-control" name="username" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Email*</label>
-                        <input type="email" class="form-control" name="email" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Role*</label>
-                        <select class="form-select" name="role" required>
-                            <option value="">Select role</option>
-                            <option value="patient">Patient</option>
-                            <option value="doctor">Doctor</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">First Name*</label>
-                        <input type="text" class="form-control" name="first_name" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Last Name*</label>
-                        <input type="text" class="form-control" name="last_name" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Password*</label>
-                        <input type="password" class="form-control" name="password" required>
-                        <div class="form-text text-muted">
-                            Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Confirm Password*</label>
-                        <input type="password" class="form-control" name="confirm_password" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Phone</label>
-                        <input type="tel" class="form-control" name="phone">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Date of Birth (YYYY-MM-DD)</label>
-                        <input type="date" class="form-control" name="date_of_birth">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Gender</label>
-                        <select class="form-select" name="gender">
-                            <option value="">Select gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Address</label>
-                        <textarea class="form-control" name="address" rows="2"></textarea>
-                    </div>
-                </div>
-                <div class="mt-4 d-grid">
-                    <button type="submit" name="create_user" class="btn btn-success">
-                        <i class="fas fa-user-plus me-2"></i> Create User
-                    </button>
-                </div>
-            </form>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Username*</label>
+            <input type="text" class="form-control" name="username" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Email*</label>
+            <input type="email" class="form-control" name="email" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Role*</label>
+            <select class="form-select" name="role" id="roleSelect" required onchange="toggleDoctorFields(this.value)">
+                <option value="">Select role</option>
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">First Name*</label>
+            <input type="text" class="form-control" name="first_name" required>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Last Name*</label>
+            <input type="text" class="form-control" name="last_name" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Password*</label>
+            <input type="password" class="form-control" name="password" required>
+            <div class="form-text text-muted">
+                Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Confirm Password*</label>
+            <input type="password" class="form-control" name="confirm_password" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input type="tel" class="form-control" name="phone">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Date of Birth</label>
+            <input type="date" class="form-control" name="date_of_birth">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Gender</label>
+            <select class="form-select" name="gender">
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Address</label>
+            <textarea class="form-control" name="address" rows="2"></textarea>
+        </div>
+
+        <!-- Doctor fields -->
+        <div id="doctorFields" class="row g-3" style="display: none;">
+            <div class="col-md-6">
+                <label class="form-label">Specialization*</label>
+                <input type="text" class="form-control" name="specialization">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Qualification*</label>
+                <input type="text" class="form-control" name="qualification">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Years of Experience</label>
+                <input type="number" class="form-control" name="experience_years" min="0">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Consultation Fee (RM)</label>
+                <input type="number" class="form-control" name="consultation_fee" min="0" step="0.01">
+            </div>
         </div>
     </div>
-</div>            <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div class="mt-4 d-grid">
+        <button type="submit" name="create_user" class="btn btn-success">
+            <i class="fas fa-user-plus me-2"></i> Create User
+        </button>
+    </div>
+</form>      
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Manage Users</h1>
             </div>
             
@@ -728,5 +741,12 @@ include '../includes/header.php';
     </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php 
+<script>
+function toggleDoctorFields(role) {
+    const docFields = document.getElementById('doctorFields');
+    docFields.style.display = role === 'doctor' ? 'flex' : 'none';
+}
+</script>
+include '../includes/footer.php'; ?>
 
