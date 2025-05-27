@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'confirm_password' => $_POST['confirm_password'] ?? '',
         'first_name' => sanitize($_POST['first_name'] ?? ''),
         'last_name' => sanitize($_POST['last_name'] ?? ''),
-        'role' => sanitize($_POST['role'] ?? ''),
+        'role' => ROLE_PATIENT,
         'phone' => sanitize($_POST['phone'] ?? ''),
         'gender' => sanitize($_POST['gender'] ?? ''),
         'date_of_birth' => sanitize($_POST['date_of_birth'] ?? ''),
