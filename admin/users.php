@@ -224,6 +224,62 @@ try {
     $doctorDetails = [];
     $appointmentsCount = ['count' => 0];
 }
+// Add new user
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
+    $newUser = [
+        'username' => sanitize($_POST['username'] ?? ''),
+        'email' => sanitize($_POST['email'] ?? ''),
+        'first_name' => sanitize($_POST['first_name'] ?? ''),
+        'last_name' => sanitize($_POST['last_name'] ?? ''),
+        'password' => $_POST['password'] ?? '',
+        'confirm_password' => $_POST['confirm_password'] ?? '',
+        'role' => sanitize($_POST['role'] ?? '')
+    ];
+
+    // Validation
+    if (empty($newUser['username'])) {
+        $errors['username'] = 'Username is required.';
+    }
+    if (!filter_var($newUser['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'Valid email is required.';
+    }
+    if (empty($newUser['first_name']) || empty($newUser['last_name'])) {
+        $errors['name'] = 'First and last name are required.';
+    }
+    if (strlen($newUser['password']) < 8) {
+        $errors['password'] = 'Password must be at least 8 characters.';
+    }
+    if ($newUser['password'] !== $newUser['confirm_password']) {
+        $errors['confirm_password'] = 'Passwords do not match.';
+    }
+    if (!in_array($newUser['role'], [ROLE_PATIENT, ROLE_DOCTOR, ROLE_ADMIN])) {
+        $errors['role'] = 'Invalid user role.';
+    }
+
+    // Insert user
+    if (empty($errors)) {
+        try {
+            $passwordHash = password_hash($newUser['password'], PASSWORD_DEFAULT);
+            $db->insert(
+                "INSERT INTO users (username, email, password, first_name, last_name, role, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))",
+                [
+                    $newUser['username'],
+                    $newUser['email'],
+                    $passwordHash,
+                    $newUser['first_name'],
+                    $newUser['last_name'],
+                    $newUser['role']
+                ]
+            );
+            setFlashMessage('success', 'New user account created.', 'success');
+            redirect('users.php');
+        } catch (Exception $e) {
+            error_log("Add user error: " . $e->getMessage());
+            $errors['general'] = 'Failed to create new user.';
+        }
+    }
+}
 
 // Include header
 include '../includes/header.php';
@@ -470,6 +526,55 @@ include '../includes/header.php';
             
         <?php else: ?>
             <!-- All Users View -->
+            <div class="card mb-4">
+                <div class="card-header">
+                 <h5><i class="fas fa-user-plus text-primary me-2"></i>Add New User</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Username*</label>
+                                <input type="text" class="form-control" name="username" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Email*</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Role*</label>
+                                <select class="form-select" name="role" required>
+                                    <option value="">Select role</option>
+                                    <option value="patient">Patient</option>
+                                    <option value="doctor">Doctor</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">First Name*</label>
+                                <input type="text" class="form-control" name="first_name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name*</label>
+                                <input type="text" class="form-control" name="last_name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password*</label>
+                                <input type="password" class="form-control" name="password" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm Password*</label>
+                            <input type="password" class="form-control" name="confirm_password" required>
+                            </div>
+                        </div>
+                        <div class="mt-4 d-grid">
+                            <button type="submit" name="create_user" class="btn btn-success">
+                                <i class="fas fa-user-plus me-2"></i> Create User
+                            </button>
+                        </div>
+                    </form>
+                  </div>
+            </div>            
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Manage Users</h1>
             </div>
