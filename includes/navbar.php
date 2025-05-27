@@ -83,16 +83,7 @@
                                     </a>
                                 </li>
                             <?php elseif (hasRole(ROLE_ADMIN)): ?>
-                                <li>
-                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>profile.php">
-                                        <i class="fas fa-id-card"></i> My Profile
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="<?php echo BASE_URL; ?>settings.php">
-                                        <i class="fas fa-cog"></i> System Settings
-                                    </a>
-                                </li>
+                                
                             <?php endif; ?>
                             <li><hr class="dropdown-divider"></li>
                             <li>
