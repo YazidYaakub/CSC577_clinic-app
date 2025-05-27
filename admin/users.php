@@ -178,16 +178,20 @@ try {
         }
     } else {
         // Build query for users list
-        $query = "SELECT u.*, ";
+        //$query = "SELECT u.*, ";
         
         // Add doctor details subquery if needed
-        if ($viewMode === 'doctors') {
-            $query .= "(SELECT specialization FROM doctor_details WHERE user_id = u.id) as specialization ";
-        } else {
-            $query .= "NULL as specialization ";
-        }
+        //if ($viewMode === 'doctors') {
+            //$query .= "(SELECT specialization FROM doctor_details WHERE user_id = u.id) as specialization ";
+        //} else {
+            //$query .= "NULL as specialization ";
+        //}
+        $query = "SELECT u.*, d.specialization
+                  FROM users u
+                  LEFT JOIN doctor_details d ON u.id = d.user_id
+                  WHERE 1=1 ";
         
-        $query .= "FROM users u WHERE 1=1 ";
+        //$query .= "FROM users u WHERE 1=1 ";
         
         $params = [];
         
@@ -537,7 +541,7 @@ include '../includes/header.php';
                 data-bs-target="#addUserForm"
                 aria-expanded="false"
                 aria-controls="addUserForm">
-            Toggle Form
+            Add New User
         </button>
     </div>
     <div id="addUserForm" class="collapse">
