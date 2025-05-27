@@ -213,6 +213,7 @@ $extraScripts = <<<EOT
     });
 </script>
 EOT;
+echo $extraScripts;
 
 include '../includes/footer.php';
 
