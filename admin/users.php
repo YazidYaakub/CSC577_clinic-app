@@ -525,17 +525,20 @@ include '../includes/header.php';
             </div>
             
         <?php else: ?>
-            <!-- All Users View -->
-            <div class="mb-3">
-    <button class="btn btn-sm btn-outline-primary" type="button"
-        data-bs-toggle="collapse" data-bs-target="#addUserForm"
-        aria-expanded="false" aria-controls="addUserForm">
-        <i class="fas fa-plus me-1"></i> Add New User
-    </button>
-</div>
+            <!-- All Users View --> 
             <div class="card mb-4">
-    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#addUserForm" aria-expanded="false" style="cursor: pointer;">
-        <h5 class="mb-0"><i class="fas fa-user-plus text-primary me-2"></i> Add New User</h5>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-user-plus text-primary me-2"></i> Add New User
+        </h5>
+        <button class="btn btn-sm btn-outline-primary"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#addUserForm"
+                aria-expanded="false"
+                aria-controls="addUserForm">
+            Toggle Form
+        </button>
     </div>
     <div id="addUserForm" class="collapse">
         <div class="card-body"><form method="post" action="">
