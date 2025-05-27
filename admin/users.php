@@ -526,6 +526,13 @@ include '../includes/header.php';
             
         <?php else: ?>
             <!-- All Users View -->
+            <div class="mb-3">
+    <button class="btn btn-sm btn-outline-primary" type="button"
+        data-bs-toggle="collapse" data-bs-target="#addUserForm"
+        aria-expanded="false" aria-controls="addUserForm">
+        <i class="fas fa-plus me-1"></i> Add New User
+    </button>
+</div>
             <div class="card mb-4">
     <div class="card-header" data-bs-toggle="collapse" data-bs-target="#addUserForm" aria-expanded="false" style="cursor: pointer;">
         <h5 class="mb-0"><i class="fas fa-user-plus text-primary me-2"></i> Add New User</h5>
