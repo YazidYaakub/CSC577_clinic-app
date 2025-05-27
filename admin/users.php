@@ -526,7 +526,12 @@ include '../includes/header.php';
             
         <?php else: ?>
             <!-- All Users View -->
-            <form method="post" action="">
+            <div class="card mb-4">
+    <div class="card-header" data-bs-toggle="collapse" data-bs-target="#addUserForm" aria-expanded="false" style="cursor: pointer;">
+        <h5 class="mb-0"><i class="fas fa-user-plus text-primary me-2"></i> Add New User</h5>
+    </div>
+    <div id="addUserForm" class="collapse">
+        <div class="card-body"><form method="post" action="">
     <div class="row g-3">
         <div class="col-md-4">
             <label class="form-label">Username*</label>
@@ -615,7 +620,10 @@ include '../includes/header.php';
             <i class="fas fa-user-plus me-2"></i> Create User
         </button>
     </div>
-</form>      
+</form>
+</div>
+    </div>
+</div>      
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Manage Users</h1>
             </div>
