@@ -21,6 +21,19 @@ $specificUserId = $viewingSpecific ? (int) $_GET['id'] : 0;
 $errors = [];
 $successMessage = '';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
+    $deleteUserId = (int) $_POST['delete_user'];
+    try {
+        $db->delete("DELETE FROM users WHERE id = ?", [$deleteUserId]);
+        setFlashMessage('success', 'User deleted successfully.', 'success');
+        redirect('users.php');
+    } catch (Exception $e) {
+        error_log("Delete user error: " . $e->getMessage());
+        setFlashMessage('error', 'Failed to delete user.', 'danger');
+        redirect('users.php');
+    }
+}
+
 try {
     if ($viewingSpecific) {
         // Get specific user
@@ -517,7 +530,12 @@ include '../includes/header.php';
                                     <i class="fas fa-calendar-alt me-2"></i> 
                                     <?php echo $user['role'] === ROLE_PATIENT ? 'View Patient Appointments' : 'View Doctor Appointments'; ?>
                                 </a>
-                                
+                                <form method="post" class="d-grid" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                    <input type="hidden" name="delete_user" value="<?php echo $user['id']; ?>">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="fas fa-trash-alt me-2"></i> Delete User
+                                    </button>
+                                </form>
                                 <button type="button" class="btn btn-outline-danger" 
                                         onclick="if(confirm('Are you sure you want to deactivate this account? This action cannot be undone.')) alert('Account deactivation feature will be implemented in future updates.');">
                                     <i class="fas fa-user-slash me-2"></i> Deactivate Account
