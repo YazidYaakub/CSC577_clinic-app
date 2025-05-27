@@ -532,7 +532,7 @@ include '../includes/header.php';
             <i class="fas fa-user-plus text-primary me-2"></i>Add New User
         </h5>
         <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addUserForm" aria-expanded="false" aria-controls="addUserForm">
-            Toggle Form
+            Add Users
         </button>
     </div>
     <div class="collapse" id="addUserForm">
