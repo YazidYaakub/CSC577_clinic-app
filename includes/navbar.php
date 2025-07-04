@@ -20,26 +20,28 @@
         
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <?php if (!isLoggedIn()): ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>">
-                           <i class="fas fa-home"></i> Home
-                        </a>
-                    </li>
-                <?php elseif (hasRole(ROLE_PATIENT) || hasRole(ROLE_DOCTOR)): ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>" href="<?php 
-                            echo hasRole(ROLE_PATIENT) 
-                                ? BASE_URL . 'dashboard.php' 
-                                : BASE_URL . 'dashboard.php'; 
-                        ?>">
-                            <i class="fas fa-home"></i> Home
-                        </a>
-                    </li>
-                <?php endif; ?>
-                
+                <?php 
+                // Get the name of the current PHP file
+                $currentPage = basename($_SERVER['PHP_SELF']); 
+                ?>
+
                 <?php if (isLoggedIn()): ?>
-                    <?php // Navigation for logged-in users (Patient, Doctor, Admin) ?>
+                    <?php // --- START LOGGED-IN USER NAVIGATION --- ?>
+
+                    <?php // Always show a Home/Dashboard link for logged-in users ?>
+                    <?php if (hasRole(ROLE_PATIENT) || hasRole(ROLE_DOCTOR)): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $currentPage == 'dashboard.php' ? 'active' : ''; ?>" href="<?php 
+                                echo hasRole(ROLE_PATIENT) 
+                                    ? BASE_URL . 'dashboard.php' 
+                                    : BASE_URL . 'dashboard.php'; 
+                            ?>">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                    
+                    <?php // Role-specific navigation includes ?>
                     <?php if (hasRole(ROLE_PATIENT)): ?>
                         <?php include 'patient_nav.php'; ?>
                     <?php elseif (hasRole(ROLE_DOCTOR)): ?>
@@ -47,14 +49,27 @@
                     <?php elseif (hasRole(ROLE_ADMIN)): ?>
                         <?php include 'admin_nav.php'; ?>
                     <?php endif; ?>
+
+                    <?php // --- END LOGGED-IN USER NAVIGATION --- ?>
+
                 <?php else: ?>
-                    <?php // Navigation for users NOT logged in ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>contact.php">
-                            <i class="fas fa-envelope"></i> Contact Us
-                        </a>
-                    </li>
-                    <?php // "Services" and "Our Doctors" links are removed for non-logged-in users ?>
+                    <?php // --- START GUEST (NOT LOGGED-IN) NAVIGATION --- ?>
+
+                    <?php // Only show Home and Contact Us on pages that are NOT login.php or register.php
+                    if ($currentPage != 'login.php' && $currentPage != 'register.php'): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $currentPage == 'index.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>">
+                               <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $currentPage == 'contact.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>contact.php">
+                                <i class="fas fa-envelope"></i> Contact Us
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                    
+                    <?php // --- END GUEST (NOT LOGGED-IN) NAVIGATION --- ?>
                 <?php endif; ?>
             </ul>
             
@@ -62,7 +77,7 @@
                 <?php if (isLoggedIn()): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle"></i> <?php echo htmlspecialchars($_SESSION['full_name']); // Good practice: escape output ?>
+                            <i class="fas fa-user-circle"></i> <?php echo htmlspecialchars($_SESSION['full_name']); ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <?php if (hasRole(ROLE_PATIENT)): ?>
@@ -94,14 +109,13 @@
                         </ul>
                     </li>
                 <?php else: ?>
-                    <?php // Login and Register links for users NOT logged in ?>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>login.php">
+                        <a class="nav-link <?php echo $currentPage == 'login.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>login.php">
                             <i class="fas fa-sign-in-alt"></i> Login
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'register.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>register.php">
+                        <a class="nav-link <?php echo $currentPage == 'register.php' ? 'active' : ''; ?>" href="<?php echo BASE_URL; ?>register.php">
                             <i class="fas fa-user-plus"></i> Register
                         </a>
                     </li>
