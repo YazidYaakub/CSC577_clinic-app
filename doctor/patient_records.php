@@ -30,13 +30,22 @@ try {
         }
         
         // Get patient's appointment history with this doctor
+        //$appointments = $db->fetchAll(
+        //    "SELECT * FROM appointments 
+        //     WHERE patient_id = ? 
+        //     ORDER BY appointment_date DESC, appointment_time DESC",
+        //    [$patientId]
+        //);
+        // AND doctor_id = ? | $userId 
+
         $appointments = $db->fetchAll(
-            "SELECT * FROM appointments 
-             WHERE patient_id = ? 
-             ORDER BY appointment_date DESC, appointment_time DESC",
+            "SELECT a.*, d.first_name as doc_first_name, d.last_name as doc_last_name 
+             FROM appointments a
+             JOIN users d ON a.doctor_id = d.id
+             WHERE a.patient_id = ? 
+             ORDER BY a.appointment_date DESC, a.appointment_time DESC",
             [$patientId]
         );
-        // AND doctor_id = ? | $userId 
         
         // Get patient's medical records with this doctor
         $medicalRecords = $db->fetchAll(
@@ -190,6 +199,7 @@ include '../includes/header.php';
                                             <tr>
                                                 <th>Date</th>
                                                 <th>Time</th>
+                                                <th>Doctor</th>
                                                 <th>Status</th>
                                                 <th>Actions</th>
                                             </tr>
@@ -199,6 +209,7 @@ include '../includes/header.php';
                                                 <tr>
                                                     <td><?php echo formatDate($appointment['appointment_date']); ?></td>
                                                     <td><?php echo formatTime($appointment['appointment_time']); ?></td>
+                                                    <td><?php echo htmlspecialchars($appointment['doc_first_name'] . ' ' . $appointment['doc_last_name']); ?></td>
                                                     <td>
                                                         <span class="badge bg-<?php 
                                                             echo $appointment['status'] === 'pending' ? 'warning' : 
