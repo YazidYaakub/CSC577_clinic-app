@@ -28,9 +28,10 @@ try {
             "SELECT a.*, u.first_name, u.last_name, u.email, u.phone, u.gender, u.date_of_birth 
              FROM appointments a 
              JOIN users u ON a.patient_id = u.id 
-             WHERE a.id = ? AND a.doctor_id = ?",
-            [$appointmentId, $userId]
+             WHERE a.id = ?",
+            [$appointmentId]
         );
+        //AND a.doctor_id = ? | $userId
         
         if (!$appointment) {
             setFlashMessage('error', 'Appointment not found or you do not have permission to view it.', 'danger');
@@ -42,10 +43,11 @@ try {
             "SELECT m.*, a.appointment_date, a.appointment_time 
              FROM medical_records m 
              JOIN appointments a ON m.appointment_id = a.id 
-             WHERE m.patient_id = ? AND m.doctor_id = ? 
+             WHERE m.patient_id = ? 
              ORDER BY a.appointment_date DESC, a.appointment_time DESC",
-            [$appointment['patient_id'], $userId]
+            [$appointment['patient_id']]
         );
+        //AND a.doctor_id = ? | $userId
         
         // Get prescriptions for each medical record
         foreach ($medicalHistory as &$record) {
@@ -57,12 +59,21 @@ try {
         unset($record); // Break the reference
     } else {
         // Build query for appointments list
-        $query = "SELECT a.*, u.first_name, u.last_name, u.phone 
-                 FROM appointments a 
-                 JOIN users u ON a.patient_id = u.id 
-                 WHERE a.doctor_id = ? ";
+        //$query = "SELECT a.*, u.first_name, u.last_name, u.phone 
+        //         FROM appointments a 
+        //         JOIN users u ON a.patient_id = u.id 
+        //         WHERE a.doctor_id = ? ";
         
-        $params = [$userId];
+        //$params = [$userId];
+
+        // Build query for appointments list - REMOVED doctor_id CHECK
+        $query = "SELECT a.*, u.first_name, u.last_name, u.phone, d.first_name as doc_first_name, d.last_name as doc_last_name
+                  FROM appointments a 
+                  JOIN users u ON a.patient_id = u.id 
+                  JOIN users d ON a.doctor_id = d.id
+                  WHERE 1=1 "; // Using 1=1 to easily append filters
+        
+        $params = [];
         
         // Apply date filter if provided
         if (!empty($date)) {
