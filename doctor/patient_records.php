@@ -32,20 +32,22 @@ try {
         // Get patient's appointment history with this doctor
         $appointments = $db->fetchAll(
             "SELECT * FROM appointments 
-             WHERE patient_id = ? AND doctor_id = ? 
+             WHERE patient_id = ? 
              ORDER BY appointment_date DESC, appointment_time DESC",
-            [$patientId, $userId]
+            [$patientId]
         );
+        // AND doctor_id = ? | $userId 
         
         // Get patient's medical records with this doctor
         $medicalRecords = $db->fetchAll(
             "SELECT m.*, a.appointment_date, a.appointment_time 
              FROM medical_records m 
              JOIN appointments a ON m.appointment_id = a.id 
-             WHERE m.patient_id = ? AND m.doctor_id = ? 
+             WHERE m.patient_id = ? 
              ORDER BY a.appointment_date DESC, a.appointment_time DESC",
-            [$patientId, $userId]
+            [$patientId]
         );
+        //AND m.doctor_id = ? | $userId
         
         // Get prescriptions for each medical record
         foreach ($medicalRecords as &$record) {
