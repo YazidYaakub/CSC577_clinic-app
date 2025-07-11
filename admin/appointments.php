@@ -341,7 +341,6 @@ include '../includes/header.php';
                 </h1>
                 
                 <div>
-                    {{-- NEW BUTTON ADDED HERE --}}
                     <a href="book_appointment_for_patient.php" class="btn btn-success me-2">
                         <i class="fas fa-plus-circle me-2"></i> Book New Appointment
                     </a>

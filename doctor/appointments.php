@@ -142,9 +142,11 @@ include '../includes/header.php';
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Appointment Details</h1>
                 <div>
+                    <?php /*
                     <a href="add_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="btn btn-success me-2">
                         <i class="fas fa-notes-medical me-2"></i> Add Medical Record
-                    </a>
+                        </a>
+                    */ ?>
                     <a href="appointments.php" class="btn btn-outline-primary">
                         <i class="fas fa-arrow-left me-2"></i> Back to All Appointments
                     </a>
@@ -189,26 +191,23 @@ include '../includes/header.php';
                                     <p class="mb-0"><?php echo $appointment['symptoms']; ?></p>
                                 </div>
                             <?php endif; ?>
-                            
+
+                            <?php /*
                             <?php if ($appointment['status'] === 'pending' || $appointment['status'] === 'confirmed'): ?>
                                 <div class="mt-4">
                                     <h6>Update Appointment Status:</h6>
                                     <div class="btn-group" role="group">
-                                        <?php /*
-                                        <?php if ($appointment['status'] === 'pending'): ?>
+                                                                                <?php if ($appointment['status'] === 'pending'): ?>
                                             <button type="button" class="btn btn-success" 
                                                     onclick="updateStatus(<?php echo $appointment['id']; ?>, 'confirmed')">
                                                 <i class="fas fa-check-circle me-1"></i> Confirm
                                             </button>
                                         <?php endif; ?>
-                                        */ ?>
-                                        <?php /*
                                         <button type="button" class="btn btn-danger" 
                                                 onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
                                             <i class="fas fa-times-circle me-1"></i> Cancel
                                         </button>
-                                        */ ?>
-                                        <?php if ($appointment['appointment_date'] === date('Y-m-d')): ?>
+                                                                                <?php if ($appointment['appointment_date'] === date('Y-m-d')): ?>
                                             <button type="button" class="btn btn-info" 
                                                     onclick="updateStatus(<?php echo $appointment['id']; ?>, 'completed')">
                                                 <i class="fas fa-check-double me-1"></i> Mark as Completed
@@ -217,6 +216,8 @@ include '../includes/header.php';
                                     </div>
                                 </div>
                             <?php endif; ?>
+                            */ ?>
+
                         </div>
                     </div>
                     
