@@ -70,10 +70,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['email'] = 'Invalid email format';
     }
     
+    //if (empty($formData['password'])) {
+    //    $errors['password'] = 'Password is required';
+    //} elseif (strlen($formData['password']) < 8) {
+    //    $errors['password'] = 'Password must be at least 8 characters';
+    //}
+
     if (empty($formData['password'])) {
         $errors['password'] = 'Password is required';
     } elseif (strlen($formData['password']) < 8) {
         $errors['password'] = 'Password must be at least 8 characters';
+    } elseif (!preg_match('/[A-Z]/', $formData['password'])) {
+        $errors['password'] = 'Password must include at least one uppercase letter';
+    } elseif (!preg_match('/[a-z]/', $formData['password'])) {
+        $errors['password'] = 'Password must include at least one lowercase letter';
+    } elseif (!preg_match('/[0-9]/', $formData['password'])) {
+        $errors['password'] = 'Password must include at least one number';
+    } elseif (!preg_match('/[^A-Za-z0-9]/', $formData['password'])) { // Check for special character
+        $errors['password'] = 'Password must include at least one special character';
     }
     
     if ($formData['password'] !== $formData['confirm_password']) {
