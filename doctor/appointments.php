@@ -194,12 +194,14 @@ include '../includes/header.php';
                                 <div class="mt-4">
                                     <h6>Update Appointment Status:</h6>
                                     <div class="btn-group" role="group">
+                                        <?php /*
                                         <?php if ($appointment['status'] === 'pending'): ?>
                                             <button type="button" class="btn btn-success" 
                                                     onclick="updateStatus(<?php echo $appointment['id']; ?>, 'confirmed')">
                                                 <i class="fas fa-check-circle me-1"></i> Confirm
                                             </button>
                                         <?php endif; ?>
+                                        */ ?>
                                         <button type="button" class="btn btn-danger" 
                                                 onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
                                             <i class="fas fa-times-circle me-1"></i> Cancel
@@ -434,12 +436,13 @@ include '../includes/header.php';
                                                     </a>
                                                     
                                                     <?php if ($appointment['status'] === 'pending'): ?>
+                                                       <?php /*
                                                         <button type="button" class="btn btn-outline-success" 
                                                                 onclick="updateStatus(<?php echo $appointment['id']; ?>, 'confirmed')">
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                     <?php endif; ?>
-                                                    
+                                                    */ ?> 
                                                     <?php if ($appointment['status'] === 'pending' || $appointment['status'] === 'confirmed'): ?>
                                                         <button type="button" class="btn btn-outline-danger" 
                                                                 onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">

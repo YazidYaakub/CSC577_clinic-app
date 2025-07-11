@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Insert the appointment
             $appointmentId = $db->insert(
                 "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, symptoms, status) 
-                 VALUES (?, ?, ?, ?, ?, 'pending')",
+                 VALUES (?, ?, ?, ?, ?, 'confirmed')",
                 [
                     $userId,
                     $formData['doctor_id'],
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $db->commit();
             
-            setFlashMessage('success', 'Appointment booked successfully! Your appointment is pending confirmation.', 'success');
+            setFlashMessage('success', 'Appointment booked successfully! Your appointment is now confirmed.', 'success');
             redirect('manage_appointments.php');
         } catch (Exception $e) {
             $db->rollback();

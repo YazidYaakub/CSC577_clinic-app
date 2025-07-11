@@ -169,9 +169,7 @@ include '../includes/header.php';
                                                 <input type="time" class="form-control" 
                                                        id="start_time_<?php echo $day; ?>" 
                                                        name="start_time_<?php echo $day; ?>" 
-                                                       value="<?php echo $startTime; ?>"
-                                                       min="08:00"
-                                                       max="22:00">
+                                                       value="<?php echo $startTime; ?>"> 
                                             </div>
                                         </td>
                                         <td>
@@ -179,9 +177,8 @@ include '../includes/header.php';
                                                 <input type="time" class="form-control" 
                                                        id="end_time_<?php echo $day; ?>" 
                                                        name="end_time_<?php echo $day; ?>" 
-                                                       value="<?php echo $endTime; ?>"
-                                                       min="08:00"
-                                                       max="22:00">
+                                                       value="<?php echo $endTime; ?>">
+                                                       
                                             </div>
                                         </td>
                                     </tr>
