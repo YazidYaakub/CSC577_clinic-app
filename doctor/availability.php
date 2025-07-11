@@ -169,7 +169,9 @@ include '../includes/header.php';
                                                 <input type="time" class="form-control" 
                                                        id="start_time_<?php echo $day; ?>" 
                                                        name="start_time_<?php echo $day; ?>" 
-                                                       value="<?php echo $startTime; ?>">
+                                                       value="<?php echo $startTime; ?>"
+                                                       min="08:00"
+                                                       max="22:00">
                                             </div>
                                         </td>
                                         <td>
@@ -177,7 +179,9 @@ include '../includes/header.php';
                                                 <input type="time" class="form-control" 
                                                        id="end_time_<?php echo $day; ?>" 
                                                        name="end_time_<?php echo $day; ?>" 
-                                                       value="<?php echo $endTime; ?>">
+                                                       value="<?php echo $endTime; ?>"
+                                                       min="08:00"
+                                                       max="22:00">
                                             </div>
                                         </td>
                                     </tr>
@@ -190,9 +194,11 @@ include '../includes/header.php';
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-2"></i> Save Availability
                         </button>
+                        <?php /*
                         <button type="reset" class="btn btn-secondary ms-2">
                             <i class="fas fa-undo me-2"></i> Reset
                         </button>
+                        */ ?>
                     </div>
                 </form>
             </div>
