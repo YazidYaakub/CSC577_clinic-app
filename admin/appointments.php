@@ -196,12 +196,10 @@ include '../includes/header.php';
                             
                             <div class="mt-4">
                                 <h6>Update Appointment Status:</h6>
-                                <select class="form-select appointment-status-select" data-appointment-id="<?php echo $appointment['id']; ?>">
-                                    <option value="pending" <?php echo $appointment['status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                    <option value="confirmed" <?php echo $appointment['status'] === 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
-                                    <option value="completed" <?php echo $appointment['status'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                    <option value="cancelled" <?php echo $appointment['status'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
-                                </select>
+                                <?php /* Only keeping the Cancel option directly for single view */ ?>
+                                <button type="button" class="btn btn-danger" onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
+                                    <i class="fas fa-times-circle me-1"></i> Cancel Appointment
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -339,7 +337,6 @@ include '../includes/header.php';
                 </h1>
                 
                 <div>
-                    {{-- NEW BUTTON ADDED HERE --}}
                     <a href="book_appointment_for_patient.php" class="btn btn-success me-2">
                         <i class="fas fa-plus-circle me-2"></i> Book New Appointment
                     </a>
@@ -525,12 +522,16 @@ $extraScripts = <<<EOT
     }
     
     // Handle appointment status select change (this part is for the single appointment view dropdown)
+    // This event listener is no longer needed since the select dropdown is replaced by a button.
+    // Keeping it commented out for reference in case the select is re-introduced.
+    /*
     $('.appointment-status-select').on('change', function() {
         const appointmentId = $(this).data('appointment-id');
         const newStatus = $(this).val();
         
         updateStatus(appointmentId, newStatus);
     });
+    */
 </script>
 EOT;
 
