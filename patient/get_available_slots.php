@@ -13,6 +13,7 @@ require_once '../includes/auth.php';
 //    ]);
 //    exit;
 //}
+$currentUserRole = getCurrentUserRole();
 if (!isLoggedIn() || ($currentUserRole !== ROLE_PATIENT && $currentUserRole !== ROLE_ADMIN)) {
     echo json_encode([
         'success' => false,
