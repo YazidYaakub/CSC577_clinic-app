@@ -338,11 +338,17 @@ include '../includes/header.php';
                     <?php endif; ?>
                 </h1>
                 
-                <?php if (isset($doctor) || isset($patient)): ?>
-                    <a href="appointments.php" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i> Back to All Appointments
+                <div>
+                    {{-- NEW BUTTON ADDED HERE --}}
+                    <a href="book_appointment_for_patient.php" class="btn btn-success me-2">
+                        <i class="fas fa-plus-circle me-2"></i> Book New Appointment
                     </a>
-                <?php endif; ?>
+                    <?php if (isset($doctor) || isset($patient)): ?>
+                        <a href="appointments.php" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to All Appointments
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
             
             <!-- Search and Filters -->
