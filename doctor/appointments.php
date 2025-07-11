@@ -202,10 +202,12 @@ include '../includes/header.php';
                                             </button>
                                         <?php endif; ?>
                                         */ ?>
+                                        <?php /*
                                         <button type="button" class="btn btn-danger" 
                                                 onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
                                             <i class="fas fa-times-circle me-1"></i> Cancel
                                         </button>
+                                        */ ?>
                                         <?php if ($appointment['appointment_date'] === date('Y-m-d')): ?>
                                             <button type="button" class="btn btn-info" 
                                                     onclick="updateStatus(<?php echo $appointment['id']; ?>, 'completed')">
@@ -434,22 +436,23 @@ include '../includes/header.php';
                                                     <a href="appointments.php?id=<?php echo $appointment['id']; ?>" class="btn btn-outline-primary">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    
+                                                    <?php /* 
                                                     <?php if ($appointment['status'] === 'pending'): ?>
-                                                       <?php /*
+                                                       
                                                         <button type="button" class="btn btn-outline-success" 
                                                                 onclick="updateStatus(<?php echo $appointment['id']; ?>, 'confirmed')">
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                     <?php endif; ?>
                                                     */ ?> 
+                                                    <?php /*
                                                     <?php if ($appointment['status'] === 'pending' || $appointment['status'] === 'confirmed'): ?>
                                                         <button type="button" class="btn btn-outline-danger" 
                                                                 onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
                                                             <i class="fas fa-times"></i>
                                                         </button>
                                                     <?php endif; ?>
-                                                    
+                                                     */ ?>
                                                     <?php if (($appointment['status'] === 'confirmed' || $appointment['status'] === 'pending') 
                                                               && $appointment['appointment_date'] === date('Y-m-d')): ?>
                                                         <button type="button" class="btn btn-outline-info" 
