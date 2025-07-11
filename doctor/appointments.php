@@ -25,8 +25,9 @@ try {
     if ($viewingSpecific) {
         // Get details of a specific appointment
         $appointment = $db->fetchOne(
-            "SELECT a.*, u.first_name, u.last_name, u.email, u.phone, u.gender, u.date_of_birth 
+            "SELECT a.*, u.first_name, u.last_name, d.first_name as doc_first_name, d.last_name as doc_last_name,u.email, u.phone, u.gender, u.date_of_birth 
              FROM appointments a 
+             JOIN users d ON a.doctor_id = d.id
              JOIN users u ON a.patient_id = u.id 
              WHERE a.id = ?",
             [$appointmentId]
@@ -403,6 +404,7 @@ include '../includes/header.php';
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Patient</th>
+                                        <th>Doctor</th>
                                         <th>Contact</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -414,6 +416,7 @@ include '../includes/header.php';
                                             <td><?php echo formatDate($appointment['appointment_date']); ?></td>
                                             <td><?php echo formatTime($appointment['appointment_time']); ?></td>
                                             <td><?php echo $appointment['first_name'] . ' ' . $appointment['last_name']; ?></td>
+                                            <td><?php echo htmlspecialchars($appointment['doc_first_name'] . ' ' . $appointment['doc_last_name']); ?></td>
                                             <td><?php echo $appointment['phone'] ?? 'N/A'; ?></td>
                                             <td>
                                                 <span class="badge bg-<?php 

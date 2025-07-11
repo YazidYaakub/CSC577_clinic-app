@@ -300,11 +300,13 @@ include '../includes/header.php';
                                                             <?php endif; ?>
                                                         </div>
                                                     </div>
+                                                    <?php /*
                                                     <div class="text-end mt-3">
                                                         <button class="btn btn-sm btn-outline-primary print-record" data-record-id="<?php echo $record['id']; ?>">
                                                             <i class="fas fa-print me-1"></i> Print Record
                                                         </button>
                                                     </div>
+                                                    */ ?>
                                                 </div>
                                             </div>
                                         </div>
