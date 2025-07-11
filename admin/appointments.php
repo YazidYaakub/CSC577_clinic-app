@@ -64,14 +64,14 @@ try {
     } else {
         // Build query for appointments list
         $query = "SELECT a.*, 
-                         p.first_name as patient_first_name, p.last_name as patient_last_name, 
-                         d.first_name as doctor_first_name, d.last_name as doctor_last_name, 
-                         dd.specialization 
-                  FROM appointments a 
-                  JOIN users p ON a.patient_id = p.id 
-                  JOIN users d ON a.doctor_id = d.id 
-                  JOIN doctor_details dd ON d.id = dd.user_id 
-                  WHERE 1=1 ";
+                          p.first_name as patient_first_name, p.last_name as patient_last_name, 
+                          d.first_name as doctor_first_name, d.last_name as doctor_last_name, 
+                          dd.specialization 
+                   FROM appointments a 
+                   JOIN users p ON a.patient_id = p.id 
+                   JOIN users d ON a.doctor_id = d.id 
+                   JOIN doctor_details dd ON d.id = dd.user_id 
+                   WHERE 1=1 ";
         
         $params = [];
         
@@ -339,6 +339,7 @@ include '../includes/header.php';
                 </h1>
                 
                 <div>
+                    {{-- NEW BUTTON ADDED HERE --}}
                     <a href="book_appointment_for_patient.php" class="btn btn-success me-2">
                         <i class="fas fa-plus-circle me-2"></i> Book New Appointment
                     </a>
@@ -473,26 +474,10 @@ include '../includes/header.php';
                                                     <a href="appointments.php?id=<?php echo $appointment['id']; ?>" class="btn btn-outline-primary">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-cog"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li>
-                                                            <a class="dropdown-item" href="#" onclick="updateStatus(<?php echo $appointment['id']; ?>, 'confirmed'); return false;">
-                                                                <i class="fas fa-check text-success me-2"></i> Confirm
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item" href="#" onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled'); return false;">
-                                                                <i class="fas fa-times text-danger me-2"></i> Cancel
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item" href="#" onclick="updateStatus(<?php echo $appointment['id']; ?>, 'completed'); return false;">
-                                                                <i class="fas fa-check-double text-info me-2"></i> Mark Completed
-                                                            </a>
-                                                        </li>
-                                                    </ul>
+                                                    <?php /* Only keeping the Cancel option directly */ ?>
+                                                    <a class="btn btn-outline-danger" href="#" onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled'); return false;">
+                                                        <i class="fas fa-times"></i> Cancel
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -539,7 +524,7 @@ $extraScripts = <<<EOT
         }
     }
     
-    // Handle appointment status select change
+    // Handle appointment status select change (this part is for the single appointment view dropdown)
     $('.appointment-status-select').on('change', function() {
         const appointmentId = $(this).data('appointment-id');
         const newStatus = $(this).val();
@@ -551,4 +536,3 @@ EOT;
 
 include '../includes/footer.php';
 ?>
-
