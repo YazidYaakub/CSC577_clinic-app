@@ -6,10 +6,17 @@ require_once '../includes/functions.php';
 require_once '../includes/auth.php';
 
 // Ensure user is logged in and is a patient
-if (!isLoggedIn() || !hasRole(ROLE_PATIENT)) {
+//if (!isLoggedIn() || !hasRole(ROLE_PATIENT)) {
+//    echo json_encode([
+//        'success' => false,
+//        'message' => 'Unauthorized access'
+//    ]);
+//    exit;
+//}
+if (!isLoggedIn() || ($currentUserRole !== ROLE_PATIENT && $currentUserRole !== ROLE_ADMIN)) {
     echo json_encode([
         'success' => false,
-        'message' => 'Unauthorized access'
+        'message' => 'Unauthorized access. You must be a patient or an administrator to view time slots.'
     ]);
     exit;
 }
