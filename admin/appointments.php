@@ -196,10 +196,14 @@ include '../includes/header.php';
                             
                             <div class="mt-4">
                                 <h6>Update Appointment Status:</h6>
-                                <?php /* Only keeping the Cancel option directly for single view */ ?>
+                                <?php 
+                                // Display Cancel button only if the appointment is not 'completed'
+                                if ($appointment['status'] !== 'completed'): 
+                                ?>
                                 <button type="button" class="btn btn-danger" onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
                                     <i class="fas fa-times-circle me-1"></i> Cancel Appointment
                                 </button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
