@@ -194,17 +194,17 @@ include '../includes/header.php';
                                 </div>
                             <?php endif; ?>
                             
+                            <?php 
+                            // Display "Update Appointment Status" section only if the appointment is not 'completed'
+                            if ($appointment['status'] !== 'completed'): 
+                            ?>
                             <div class="mt-4">
                                 <h6>Update Appointment Status:</h6>
-                                <?php 
-                                // Display Cancel button only if the appointment is not 'completed'
-                                if ($appointment['status'] !== 'completed'): 
-                                ?>
                                 <button type="button" class="btn btn-danger" onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
                                     <i class="fas fa-times-circle me-1"></i> Cancel Appointment
                                 </button>
-                                <?php endif; ?>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
@@ -341,6 +341,7 @@ include '../includes/header.php';
                 </h1>
                 
                 <div>
+                    {{-- NEW BUTTON ADDED HERE --}}
                     <a href="book_appointment_for_patient.php" class="btn btn-success me-2">
                         <i class="fas fa-plus-circle me-2"></i> Book New Appointment
                     </a>
@@ -475,10 +476,14 @@ include '../includes/header.php';
                                                     <a href="appointments.php?id=<?php echo $appointment['id']; ?>" class="btn btn-outline-primary">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <?php /* Only keeping the Cancel option directly */ ?>
+                                                    <?php 
+                                                    // Display Cancel button only if the appointment is not 'completed'
+                                                    if ($appointment['status'] !== 'completed'): 
+                                                    ?>
                                                     <a class="btn btn-outline-danger" href="#" onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled'); return false;">
                                                         <i class="fas fa-times"></i> Cancel
                                                     </a>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
                                         </tr>
