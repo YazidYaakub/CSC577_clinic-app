@@ -39,14 +39,15 @@ try {
             redirect('appointments.php');
         }
         
-        // Get patient's medical history (only records associated with this doctor)
+        // Get patient's medical history (ALL records for this patient, regardless of doctor)
         $medicalHistory = $db->fetchAll(
-            "SELECT m.*, a.appointment_date, a.appointment_time 
+            "SELECT m.*, a.appointment_date, a.appointment_time, u.first_name, u.last_name as doc_last_name 
              FROM medical_records m 
              JOIN appointments a ON m.appointment_id = a.id 
-             WHERE m.patient_id = ? AND m.doctor_id = ? 
+             JOIN users u ON m.doctor_id = u.id -- Join to get doctor's name for the record
+             WHERE m.patient_id = ? 
              ORDER BY a.appointment_date DESC, a.appointment_time DESC",
-            [$appointment['patient_id'], $userId] // Restricted to this patient AND this doctor
+            [$appointment['patient_id']] // Removed m.doctor_id filter here
         );
         
         // Get prescriptions for each medical record
@@ -264,17 +265,14 @@ include '../includes/header.php';
                         <div class="card-header">
                             <h5 class="mb-0">
                                 <i class="fas fa-notes-medical text-primary me-2"></i>
-                                Medical History
+                                Medical History (All Records)
                             </h5>
                         </div>
                         <div class="card-body">
                             <?php if (empty($medicalHistory)): ?>
                                 <div class="text-center p-4">
                                     <i class="fas fa-file-medical fa-3x text-muted mb-3"></i>
-                                    <p>No medical records found for this patient with you.</p>
-                                    <a href="add_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="btn btn-primary">
-                                        Create Medical Record
-                                    </a>
+                                    <p>No medical records found for this patient.</p>
                                 </div>
                             <?php else: ?>
                                 <div class="accordion" id="medicalHistoryAccordion">
@@ -321,6 +319,12 @@ include '../includes/header.php';
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
+                            <?php /* Always display "Create Medical Record" button */ ?>
+                            <div class="text-center p-4">
+                                <a href="add_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="btn btn-primary">
+                                    Create Medical Record
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -447,7 +451,7 @@ include '../includes/header.php';
                                                     
                                                     <?php if (($appointment['status'] === 'confirmed' || $appointment['status'] === 'pending') 
                                                                 && $appointment['appointment_date'] === date('Y-m-d')): ?>
-                                                        <button type="button" class="btn btn-outline-info" 
+                                                        <button type="button" class="btn btn-info" 
                                                                 onclick="updateStatus(<?php echo $appointment['id']; ?>, 'completed')">
                                                             <i class="fas fa-check-double"></i>
                                                         </button>
@@ -506,5 +510,3 @@ EOT;
 
 include '../includes/footer.php';
 ?>
-
-
