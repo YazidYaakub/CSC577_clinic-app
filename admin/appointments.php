@@ -189,7 +189,7 @@ include '../includes/header.php';
                             
                             <?php if (!empty($appointment['symptoms'])): ?>
                                 <div class="mt-3">
-                                    <h6>Reason for Visit / Symptoms:</h6>
+                                    <h6><strong>Reason for Visit / Symptoms:</strong></h6>
                                     <p class="mb-0"><?php echo $appointment['symptoms']; ?></p>
                                 </div>
                             <?php endif; ?>

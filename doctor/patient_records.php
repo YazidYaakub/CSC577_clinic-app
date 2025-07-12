@@ -1,6 +1,6 @@
 <?php
-// Doctor Appointments Management
-$pageTitle = 'Manage Appointments';
+// Patient Records Page for Doctor
+$pageTitle = 'Patient Records';
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
@@ -12,45 +12,46 @@ requireLogin(ROLE_DOCTOR, '../login.php');
 $userId = getCurrentUserId(); // The ID of the logged-in doctor
 $db = Database::getInstance();
 
-// Determine if we're viewing all appointments or a specific one
-$viewingSpecific = isset($_GET['id']) && is_numeric($_GET['id']);
-$appointmentId = $viewingSpecific ? (int) $_GET['id'] : 0;
-
-// Get appointment filter
-$filter = sanitize($_GET['filter'] ?? 'upcoming');
-$date = sanitize($_GET['date'] ?? '');
+// Check if specific patient requested
+$patientId = isset($_GET['patient_id']) && is_numeric($_GET['patient_id']) ? (int) $_GET['patient_id'] : 0;
 $searchTerm = sanitize($_GET['search'] ?? '');
-$today = date('Y-m-d');
+
 try {
-    if ($viewingSpecific) {
-        // Get details of a specific appointment
-        // IMPORTANT: Ensure the doctor can only view their own appointments
-        $appointment = $db->fetchOne(
-            "SELECT a.*, u.first_name, u.last_name, d.first_name as doc_first_name, d.last_name as doc_last_name,u.email, u.phone, u.gender, u.date_of_birth 
-             FROM appointments a 
-             JOIN users d ON a.doctor_id = d.id
-             JOIN users u ON a.patient_id = u.id 
-             WHERE a.id = ? AND a.doctor_id = ?", // Added a.doctor_id = ? to restrict to logged-in doctor
-            [$appointmentId, $userId]
+    if ($patientId > 0) {
+        // Get specific patient details
+        $patient = $db->fetchOne(
+            "SELECT * FROM users WHERE id = ? AND role = ?",
+            [$patientId, ROLE_PATIENT]
         );
         
-        if (!$appointment) {
-            setFlashMessage('error', 'Appointment not found or you do not have permission to view it.', 'danger');
-            redirect('appointments.php');
+        if (!$patient) {
+            setFlashMessage('error', 'Patient not found.', 'danger');
+            redirect('patient_records.php');
         }
         
-        // Get patient's medical history (only records associated with this doctor)
-        $medicalHistory = $db->fetchAll(
-            "SELECT m.*, a.appointment_date, a.appointment_time 
+        // Get patient's appointment history with THIS DOCTOR ONLY
+        $appointments = $db->fetchAll(
+            "SELECT a.*, d.first_name as doc_first_name, d.last_name as doc_last_name 
+             FROM appointments a
+             JOIN users d ON a.doctor_id = d.id
+             WHERE a.patient_id = ? AND a.doctor_id = ? 
+             ORDER BY a.appointment_date DESC, a.appointment_time DESC",
+            [$patientId, $userId] // Filter by patient ID AND logged-in doctor ID
+        );
+        
+        // Get patient's medical records (ALL medical records for this patient, regardless of doctor)
+        $medicalRecords = $db->fetchAll(
+            "SELECT m.*, a.appointment_date, a.appointment_time, u.first_name, u.last_name as doc_last_name
              FROM medical_records m 
              JOIN appointments a ON m.appointment_id = a.id 
-             WHERE m.patient_id = ? AND m.doctor_id = ? 
+             JOIN users u ON m.doctor_id = u.id -- Join to get doctor's name for the record
+             WHERE m.patient_id = ? 
              ORDER BY a.appointment_date DESC, a.appointment_time DESC",
-            [$appointment['patient_id'], $userId] // Restricted to this patient AND this doctor
+            [$patientId] // No doctor_id filter here, as requested, to pull all medical history
         );
         
         // Get prescriptions for each medical record
-        foreach ($medicalHistory as &$record) {
+        foreach ($medicalRecords as &$record) {
             $record['prescriptions'] = $db->fetchAll(
                 "SELECT * FROM prescriptions WHERE medical_record_id = ?",
                 [$record['id']]
@@ -58,72 +59,56 @@ try {
         }
         unset($record); // Break the reference
     } else {
-        // Build query for appointments list
-        // IMPORTANT: Ensure the doctor only sees their own appointments
-        $query = "SELECT a.*, u.first_name, u.last_name, u.phone, d.first_name as doc_first_name, d.last_name as doc_last_name
-                  FROM appointments a 
-                  JOIN users u ON a.patient_id = u.id 
-                  JOIN users d ON a.doctor_id = d.id
-                  WHERE a.doctor_id = ? "; // Filter by the logged-in doctor's ID
+        // Get list of patients who have had appointments with this doctor
+        $query = "SELECT DISTINCT u.* FROM users u 
+                  JOIN appointments a ON u.id = a.patient_id 
+                  WHERE a.doctor_id = ? AND u.role = ? ";
         
-        $params = [$userId]; // Add the doctor's ID to parameters
+        $params = [$userId, ROLE_PATIENT];
         
-        // Apply date filter if provided
-        if (!empty($date)) {
-            $query .= "AND a.appointment_date = ? ";
-            $params[] = $date;
-        }
-        // Apply status filter (only if no specific date is provided)
-        else {
-            switch ($filter) {
-                case 'today':
-                    $query .= "AND a.appointment_date = ? ";
-                    $params[] = $today;
-                    break;
-                case 'upcoming':
-                    $query .= "AND a.appointment_date >= ? AND a.status IN ('pending', 'confirmed') ";
-                    $params[] = $today;
-                    break;
-                case 'pending':
-                    $query .= "AND a.status = 'pending' ";
-                    break;
-                case 'confirmed': // Added confirmed filter for clarity
-                    $query .= "AND a.status = 'confirmed' ";
-                    break;
-                case 'completed':
-                    $query .= "AND a.status = 'completed' ";
-                    break;
-                case 'cancelled':
-                    $query .= "AND a.status = 'cancelled' ";
-                    break;
-                case 'all':
-                    // No additional condition for 'all' status
-                    break;
-                default:
-                    $filter = 'upcoming'; // Default to upcoming
-                    $query .= "AND a.appointment_date >= ? AND a.status IN ('pending', 'confirmed') ";
-                    $params[] = $today;
-            }
-        }
-        
-        // Apply search filter if provided
+        // Apply search if provided
         if (!empty($searchTerm)) {
-            $query .= "AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.phone LIKE ? OR a.symptoms LIKE ?) ";
+            $query .= "AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?) ";
             $searchParam = "%$searchTerm%";
             $params = array_merge($params, [$searchParam, $searchParam, $searchParam, $searchParam]);
         }
         
-        $query .= "ORDER BY a.appointment_date, a.appointment_time";
-        $appointments = $db->fetchAll($query, $params);
+        $query .= "ORDER BY u.last_name, u.first_name";
+        $patients = $db->fetchAll($query, $params);
+        
+        // For each patient, get their last appointment date (with this doctor)
+        foreach ($patients as &$patient) {
+            $lastAppointment = $db->fetchOne(
+                "SELECT appointment_date, status FROM appointments 
+                 WHERE patient_id = ? AND doctor_id = ? 
+                 ORDER BY appointment_date DESC, appointment_time DESC 
+                 LIMIT 1",
+                [$patient['id'], $userId]
+            );
+            
+            $patient['last_appointment'] = $lastAppointment['appointment_date'] ?? 'N/A';
+            $patient['last_appointment_status'] = $lastAppointment['status'] ?? 'N/A';
+            
+            // Get count of medical records (only those created by this doctor)
+            $recordCount = $db->fetchOne(
+                "SELECT COUNT(*) as count FROM medical_records 
+                 WHERE patient_id = ? AND doctor_id = ?",
+                [$patient['id'], $userId]
+            );
+            
+            $patient['record_count'] = $recordCount['count'] ?? 0;
+        }
+        unset($patient); // Break the reference
     }
 } catch (Exception $e) {
-    error_log("Appointments error: " . $e->getMessage());
-    setFlashMessage('error', 'An error occurred while retrieving appointments.', 'danger');
+    error_log("Patient records error: " . $e->getMessage());
+    setFlashMessage('error', 'An error occurred while retrieving patient records.', 'danger');
     
     // Set defaults
+    $patients = [];
+    $patient = null;
     $appointments = [];
-    $appointment = null;
-    $medicalHistory = [];
+    $medicalRecords = [];
 }
 
 // Include header
@@ -132,87 +117,19 @@ include '../includes/header.php';
 
 <div class="row">
     <div class="col-md-12">
-        <?php if ($viewingSpecific): ?>
-            <!-- Single Appointment View -->
+        <?php if ($patientId > 0): ?>
+            <!-- Single Patient View -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Appointment Details</h1>
-                <div>
-                    <a href="add_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="btn btn-success me-2">
-                        <i class="fas fa-notes-medical me-2"></i> Add Medical Record
-                    </a>
-                    <a href="appointments.php" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left me-2"></i> Back to All Appointments
-                    </a>
-                </div>
+                <h1>Patient Records</h1>
+                <a href="patient_records.php" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i> Back to All Patients
+                </a>
             </div>
             
             <div class="row">
-                <div class="col-md-6">
-                    <!-- Appointment Information -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="mb-0">
-                                <i class="fas fa-calendar-check text-primary me-2"></i>
-                                Appointment Information
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <p><strong>Date:</strong> <?php echo formatDate($appointment['appointment_date']); ?></p>
-                                    <p><strong>Time:</strong> <?php echo formatTime($appointment['appointment_time']); ?></p>
-                                    <p>
-                                        <strong>Status:</strong> 
-                                        <span class="badge bg-<?php 
-                                            echo $appointment['status'] === 'pending' ? 'warning' : 
-                                                ($appointment['status'] === 'confirmed' ? 'success' : 
-                                                    ($appointment['status'] === 'cancelled' ? 'danger' : 'secondary')); 
-                                        ?>">
-                                            <?php echo ucfirst($appointment['status']); ?>
-                                        </span>
-                                    </p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Created:</strong> <?php echo formatDate($appointment['created_at'], 'M j, Y g:i A'); ?></p>
-                                    <p><strong>Last Updated:</strong> <?php echo formatDate($appointment['updated_at'], 'M j, Y g:i A'); ?></p>
-                                </div>
-                            </div>
-                            
-                            <?php if (!empty($appointment['symptoms'])): ?>
-                                <div class="mb-3">
-                                    <h6>Reason for Visit / Symptoms:</h6>
-                                    <p class="mb-0"><?php echo $appointment['symptoms']; ?></p>
-                                </div>
-                            <?php endif; ?>
-                            
-                            <?php if ($appointment['status'] === 'pending' || $appointment['status'] === 'confirmed'): ?>
-                                <div class="mt-4">
-                                    <h6>Update Appointment Status:</h6>
-                                    <div class="btn-group" role="group">
-                                        <?php if ($appointment['status'] === 'pending'): ?>
-                                            <button type="button" class="btn btn-success" 
-                                                    onclick="updateStatus(<?php echo $appointment['id']; ?>, 'confirmed')">
-                                                <i class="fas fa-check-circle me-1"></i> Confirm
-                                            </button>
-                                        <?php endif; ?>
-                                        <button type="button" class="btn btn-danger" 
-                                                onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
-                                            <i class="fas fa-times-circle me-1"></i> Cancel
-                                        </button>
-                                        <?php if ($appointment['appointment_date'] === date('Y-m-d')): ?>
-                                            <button type="button" class="btn btn-info" 
-                                                    onclick="updateStatus(<?php echo $appointment['id']; ?>, 'completed')">
-                                                <i class="fas fa-check-double me-1"></i> Mark as Completed
-                                            </button>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    
+                <div class="col-md-5">
                     <!-- Patient Information -->
-                    <div class="card">
+                    <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="mb-0">
                                 <i class="fas fa-user text-primary me-2"></i>
@@ -220,28 +137,28 @@ include '../includes/header.php';
                             </h5>
                         </div>
                         <div class="card-body">
-                            <h4 class="mb-3"><?php echo $appointment['first_name'] . ' ' . $appointment['last_name']; ?></h4>
+                            <h4 class="mb-3"><?php echo $patient['first_name'] . ' ' . $patient['last_name']; ?></h4>
                             
                             <div class="row">
                                 <div class="col-md-6">
-                                    <?php if (!empty($appointment['email'])): ?>
-                                        <p><strong>Email:</strong> <?php echo $appointment['email']; ?></p>
+                                    <?php if (!empty($patient['email'])): ?>
+                                        <p><strong>Email:</strong> <?php echo $patient['email']; ?></p>
                                     <?php endif; ?>
                                     
-                                    <?php if (!empty($appointment['phone'])): ?>
-                                        <p><strong>Phone:</strong> <?php echo $appointment['phone']; ?></p>
+                                    <?php if (!empty($patient['phone'])): ?>
+                                        <p><strong>Phone:</strong> <?php echo $patient['phone']; ?></p>
                                     <?php endif; ?>
                                 </div>
                                 <div class="col-md-6">
-                                    <?php if (!empty($appointment['gender'])): ?>
-                                        <p><strong>Gender:</strong> <?php echo ucfirst($appointment['gender']); ?></p>
+                                    <?php if (!empty($patient['gender'])): ?>
+                                        <p><strong>Gender:</strong> <?php echo ucfirst($patient['gender']); ?></p>
                                     <?php endif; ?>
                                     
-                                    <?php if (!empty($appointment['date_of_birth'])): ?>
+                                    <?php if (!empty($patient['date_of_birth'])): ?>
                                         <p>
-                                            <strong>Date of Birth:</strong> <?php echo formatDate($appointment['date_of_birth']); ?>
+                                            <strong>Date of Birth:</strong> <?php echo formatDate($patient['date_of_birth']); ?>
                                             (<?php 
-                                                $age = date_diff(date_create($appointment['date_of_birth']), date_create('today'))->y;
+                                                $age = date_diff(date_create($patient['date_of_birth']), date_create('today'))->y;
                                                 echo $age . ' years';
                                             ?>)
                                         </p>
@@ -249,76 +166,145 @@ include '../includes/header.php';
                                 </div>
                             </div>
                             
-                            <div class="mt-3">
-                                <a href="patient_records.php?patient_id=<?php echo $appointment['patient_id']; ?>" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-history me-1"></i> View Complete Records
-                                </a>
-                            </div>
+                            <?php if (!empty($patient['address'])): ?>
+                                <p><strong>Address:</strong> <?php echo $patient['address']; ?></p>
+                            <?php endif; ?>
+                            
+                            <p><strong>Registered Since:</strong> <?php echo formatDate($patient['created_at'], 'M j, Y'); ?></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Appointment History -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                Appointment History (Your Appointments)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <?php if (count($appointments) > 0): ?>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Time</th>
+                                                <th>Doctor</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($appointments as $appointment): ?>
+                                                <tr>
+                                                    <td><?php echo formatDate($appointment['appointment_date']); ?></td>
+                                                    <td><?php echo formatTime($appointment['appointment_time']); ?></td>
+                                                    <td><?php echo htmlspecialchars($appointment['doc_first_name'] . ' ' . $appointment['doc_last_name']); ?></td>
+                                                    <td>
+                                                        <span class="badge bg-<?php 
+                                                            echo $appointment['status'] === 'pending' ? 'warning' : 
+                                                                ($appointment['status'] === 'confirmed' ? 'success' : 
+                                                                    ($appointment['status'] === 'cancelled' ? 'danger' : 'secondary')); 
+                                                        ?>">
+                                                            <?php echo ucfirst($appointment['status']); ?>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="appointments.php?id=<?php echo $appointment['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-eye"></i> View
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-center p-4">
+                                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                    <p>No appointment history found for this patient with you.</p>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
                 
-                <div class="col-md-6">
-                    <!-- Medical History -->
+                <div class="col-md-7">
+                    <!-- Medical Records -->
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0">
                                 <i class="fas fa-notes-medical text-primary me-2"></i>
-                                Medical History
+                                Medical Records (All Records)
                             </h5>
                         </div>
                         <div class="card-body">
-                            <?php if (empty($medicalHistory)): ?>
-                                <div class="text-center p-4">
-                                    <i class="fas fa-file-medical fa-3x text-muted mb-3"></i>
-                                    <p>No medical records found for this patient with you.</p>
-                                    <a href="add_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="btn btn-primary">
-                                        Create Medical Record
-                                    </a>
-                                </div>
-                            <?php else: ?>
-                                <div class="accordion" id="medicalHistoryAccordion">
-                                    <?php foreach ($medicalHistory as $index => $record): ?>
-                                        <div class="accordion-item mb-3">
+                            <?php if (count($medicalRecords) > 0): ?>
+                                <div class="accordion" id="medicalRecordsAccordion">
+                                    <?php foreach ($medicalRecords as $index => $record): ?>
+                                        <div class="accordion-item mb-3 border rounded">
                                             <h2 class="accordion-header" id="heading<?php echo $index; ?>">
                                                 <button class="accordion-button <?php echo $index !== 0 ? 'collapsed' : ''; ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?php echo $index; ?>" aria-expanded="<?php echo $index === 0 ? 'true' : 'false'; ?>" aria-controls="collapse<?php echo $index; ?>">
-                                                    <div class="d-flex justify-content-between w-100">
-                                                        <span>Visit: <?php echo formatDate($record['appointment_date']); ?></span>
-                                                        <span class="badge bg-info"><?php echo formatTime($record['appointment_time']); ?></span>
+                                                    <div class="d-flex flex-column flex-md-row justify-content-between w-100">
+                                                        <div>
+                                                            <span class="fw-bold">Visit: <?php echo formatDate($record['appointment_date']); ?></span>
+                                                            <span class="ms-md-3 d-block d-md-inline"><?php echo formatTime($record['appointment_time']); ?></span>
+                                                        </div>
+                                                        <div class="text-muted small d-none d-md-block">
+                                                            By Dr. <?php echo htmlspecialchars($record['first_name'] . ' ' . $record['doc_last_name']); ?> on <?php echo formatDate($record['created_at'], 'M j, Y'); ?>
+                                                        </div>
                                                     </div>
                                                 </button>
                                             </h2>
-                                            <div id="collapse<?php echo $index; ?>" class="accordion-collapse collapse <?php echo $index === 0 ? 'show' : ''; ?>" aria-labelledby="heading<?php echo $index; ?>" data-bs-parent="#medicalHistoryAccordion">
+                                            <div id="collapse<?php echo $index; ?>" class="accordion-collapse collapse <?php echo $index === 0 ? 'show' : ''; ?>" aria-labelledby="heading<?php echo $index; ?>" data-bs-parent="#medicalRecordsAccordion">
                                                 <div class="accordion-body">
-                                                    <h6>Diagnosis:</h6>
-                                                    <p><?php echo $record['diagnosis']; ?></p>
-                                                    
-                                                    <h6>Treatment:</h6>
-                                                    <p><?php echo $record['treatment']; ?></p>
-                                                    
-                                                    <?php if (!empty($record['notes'])): ?>
-                                                        <h6>Notes:</h6>
-                                                        <p><?php echo $record['notes']; ?></p>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php if (!empty($record['prescriptions'])): ?>
-                                                        <h6>Prescriptions:</h6>
-                                                        <?php foreach ($record['prescriptions'] as $prescription): ?>
-                                                            <div class="prescription-item p-2 mb-2 border rounded">
-                                                                <p class="mb-1"><strong><?php echo $prescription['medication_name']; ?></strong></p>
-                                                                <p class="mb-1">Dosage: <?php echo $prescription['dosage']; ?></p>
-                                                                <p class="mb-1">Frequency: <?php echo $prescription['frequency']; ?></p>
-                                                                <p class="mb-1">Duration: <?php echo $prescription['duration']; ?></p>
-                                                                <?php if (!empty($prescription['instructions'])): ?>
-                                                                    <p class="mb-0">Instructions: <?php echo $prescription['instructions']; ?></p>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                    <?php endif; ?>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <h5 class="mb-3">Diagnosis</h5>
+                                                            <p><?php echo $record['diagnosis']; ?></p>
+                                                            
+                                                            <h5 class="mb-3">Treatment</h5>
+                                                            <p><?php echo $record['treatment']; ?></p>
+                                                            
+                                                            <?php if (!empty($record['notes'])): ?>
+                                                                <h5 class="mb-3">Additional Notes</h5>
+                                                                <p><?php echo $record['notes']; ?></p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <h5 class="mb-3">Prescriptions</h5>
+                                                            <?php if (!empty($record['prescriptions'])): ?>
+                                                                <?php foreach ($record['prescriptions'] as $prescription): ?>
+                                                                    <div class="prescription-item p-3 mb-3 border rounded">
+                                                                        <h6><?php echo $prescription['medication_name']; ?></h6>
+                                                                        <p class="mb-1"><strong>Dosage:</strong> <?php echo $prescription['dosage']; ?></p>
+                                                                        <p class="mb-1"><strong>Frequency:</strong> <?php echo $prescription['frequency']; ?></p>
+                                                                        <p class="mb-1"><strong>Duration:</strong> <?php echo $prescription['duration']; ?></p>
+                                                                        <?php if (!empty($prescription['instructions'])): ?>
+                                                                            <p class="mb-0"><strong>Instructions:</strong> <?php echo $prescription['instructions']; ?></p>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                <?php endforeach; ?>
+                                                            <?php else: ?>
+                                                                <p class="text-muted">No prescriptions were issued.</p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-center p-4">
+                                    <i class="fas fa-file-medical fa-3x text-muted mb-3"></i>
+                                    <p>No medical records found for this patient.</p>
+                                    <?php if (count($appointments) > 0): ?>
+                                        <a href="add_medical_record.php?appointment_id=<?php echo $appointments[0]['id']; ?>" class="btn btn-primary">
+                                            Create Medical Record
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -327,71 +313,33 @@ include '../includes/header.php';
             </div>
             
         <?php else: ?>
-            <!-- All Appointments View -->
+            <!-- All Patients View -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Manage Appointments</h1>
+                <h1>Patient Records</h1>
             </div>
             
-            <!-- Search and Filters -->
+            <!-- Search Form -->
             <div class="card mb-4">
                 <div class="card-body">
                     <form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="row g-3">
-                        <div class="col-md-4">
-                            <label for="search" class="form-label">Search</label>
-                            <input type="text" class="form-control" id="search" name="search" value="<?php echo $searchTerm; ?>" placeholder="Patient name, phone, symptoms...">
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="search" name="search" value="<?php echo $searchTerm; ?>" placeholder="Search patients by name, email, or phone...">
                         </div>
-                        <div class="col-md-3">
-                            <label for="date" class="form-label">Date</label>
-                            <input type="text" class="form-control datepicker-availability" id="date" name="date" value="<?php echo $date; ?>" placeholder="YYYY-MM-DD">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="filter" class="form-label">Status</label>
-                            <select class="form-select" id="filter" name="filter">
-                                <option value="all" <?php echo $filter === 'all' ? 'selected' : ''; ?>>All</option>
-                                <option value="today" <?php echo $filter === 'today' ? 'selected' : ''; ?>>Today</option>
-                                <option value="upcoming" <?php echo $filter === 'upcoming' ? 'selected' : ''; ?>>Upcoming</option>
-                                <option value="pending" <?php echo $filter === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                <option value="confirmed" <?php echo $filter === 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
-                                <option value="completed" <?php echo $filter === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                <option value="cancelled" <?php echo $filter === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary me-2">
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
                                 <i class="fas fa-search me-1"></i> Search
                             </button>
-                            <a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-secondary">
-                                <i class="fas fa-sync-alt"></i>
-                            </a>
                         </div>
                     </form>
                 </div>
             </div>
             
-            <?php if (count($appointments) > 0): ?>
+            <?php if (count($patients) > 0): ?>
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <i class="fas fa-calendar-alt text-primary me-2"></i>
-                            <?php 
-                                if (!empty($date)) {
-                                    echo 'Appointments for ' . formatDate($date);
-                                } elseif ($filter === 'today') {
-                                    echo 'Today\'s Appointments';
-                                } elseif ($filter === 'upcoming') {
-                                    echo 'Upcoming Appointments';
-                                } elseif ($filter === 'pending') {
-                                    echo 'Pending Appointments';
-                                } elseif ($filter === 'confirmed') { // Added confirmed filter
-                                    echo 'Confirmed Appointments';
-                                } elseif ($filter === 'completed') {
-                                    echo 'Completed Appointments';
-                                } elseif ($filter === 'cancelled') {
-                                    echo 'Cancelled Appointments';
-                                } else {
-                                    echo 'All Appointments';
-                                }
-                            ?>
+                            <i class="fas fa-users text-primary me-2"></i>
+                            Patients (<?php echo count($patients); ?>)
                         </h5>
                     </div>
                     <div class="card-body">
@@ -399,64 +347,44 @@ include '../includes/header.php';
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Time</th>
-                                        <th>Patient</th>
-                                        <th>Doctor</th>
+                                        <th>Name</th>
                                         <th>Contact</th>
-                                        <th>Status</th>
+                                        <th>Last Visit</th>
+                                        <th>Records</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($appointments as $appointment): ?>
-                                        <tr>
-                                            <td><?php echo formatDate($appointment['appointment_date']); ?></td>
-                                            <td><?php echo formatTime($appointment['appointment_time']); ?></td>
-                                            <td><?php echo $appointment['first_name'] . ' ' . $appointment['last_name']; ?></td>
-                                            <td><?php echo htmlspecialchars($appointment['doc_first_name'] . ' ' . $appointment['doc_last_name']); ?></td>
-                                            <td><?php echo $appointment['phone'] ?? 'N/A'; ?></td>
+                                    <?php foreach ($patients as $patient): ?>
+                                        <tr class="searchable-item">
+                                            <td><?php echo $patient['first_name'] . ' ' . $patient['last_name']; ?></td>
                                             <td>
-                                                <span class="badge bg-<?php 
-                                                    echo $appointment['status'] === 'pending' ? 'warning' : 
-                                                        ($appointment['status'] === 'confirmed' ? 'success' : 
-                                                            ($appointment['status'] === 'cancelled' ? 'danger' : 'secondary')); 
-                                                ?>">
-                                                    <?php echo ucfirst($appointment['status']); ?>
-                                                </span>
+                                                <?php if (!empty($patient['email'])): ?>
+                                                    <div><i class="fas fa-envelope text-muted me-1"></i> <?php echo $patient['email']; ?></div>
+                                                <?php endif; ?>
+                                                <?php if (!empty($patient['phone'])): ?>
+                                                    <div><i class="fas fa-phone text-muted me-1"></i> <?php echo $patient['phone']; ?></div>
+                                                <?php endif; ?>
                                             </td>
                                             <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="appointments.php?id=<?php echo $appointment['id']; ?>" class="btn btn-outline-primary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    
-                                                    <?php if ($appointment['status'] === 'pending'): ?>
-                                                        <button type="button" class="btn btn-outline-success" 
-                                                                onclick="updateStatus(<?php echo $appointment['id']; ?>, 'confirmed')">
-                                                            <i class="fas fa-check"></i>
-                                                        </button>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php if ($appointment['status'] === 'pending' || $appointment['status'] === 'confirmed'): ?>
-                                                        <button type="button" class="btn btn-outline-danger" 
-                                                                onclick="updateStatus(<?php echo $appointment['id']; ?>, 'cancelled')">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php if (($appointment['status'] === 'confirmed' || $appointment['status'] === 'pending') 
-                                                                && $appointment['appointment_date'] === date('Y-m-d')): ?>
-                                                        <button type="button" class="btn btn-outline-info" 
-                                                                onclick="updateStatus(<?php echo $appointment['id']; ?>, 'completed')">
-                                                            <i class="fas fa-check-double"></i>
-                                                        </button>
-                                                    <?php endif; ?>
-                                                    
-                                                    <a href="add_medical_record.php?appointment_id=<?php echo $appointment['id']; ?>" class="btn btn-outline-secondary">
-                                                        <i class="fas fa-notes-medical"></i>
-                                                    </a>
-                                                </div>
+                                                <?php echo $patient['last_appointment'] !== 'N/A' ? formatDate($patient['last_appointment']) : 'N/A'; ?>
+                                                <?php if ($patient['last_appointment_status'] !== 'N/A'): ?>
+                                                    <span class="badge bg-<?php 
+                                                        echo $patient['last_appointment_status'] === 'pending' ? 'warning' : 
+                                                            ($patient['last_appointment_status'] === 'confirmed' ? 'success' : 
+                                                                ($patient['last_appointment_status'] === 'cancelled' ? 'danger' : 'secondary')); 
+                                                    ?>">
+                                                        <?php echo ucfirst($patient['last_appointment_status']); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary"><?php echo $patient['record_count']; ?></span>
+                                            </td>
+                                            <td>
+                                                <a href="patient_records.php?patient_id=<?php echo $patient['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-file-medical me-1"></i> View Records
+                                                </a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -468,7 +396,7 @@ include '../includes/header.php';
             <?php else: ?>
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
-                    No appointments found matching your criteria.
+                    <?php echo !empty($searchTerm) ? 'No patients found matching your search criteria.' : 'You have not seen any patients yet.'; ?>
                 </div>
             <?php endif; ?>
         <?php endif; ?>
@@ -476,34 +404,52 @@ include '../includes/header.php';
 </div>
 
 <?php
-// Add custom scripts
+// Add custom print script
+$siteName = htmlspecialchars(SITE_NAME, ENT_QUOTES, 'UTF-8');
 $extraScripts = <<<EOT
 <script>
-    // Function to update appointment status
-    function updateStatus(appointmentId, status) {
-        if (confirm('Are you sure you want to change the appointment status to ' + status + '?')) {
-            $.ajax({
-                url: '../includes/update_appointment_status.php',
-                method: 'POST',
-                data: { appointment_id: appointmentId, status: status },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        alert('Appointment status updated successfully');
-                        location.reload();
-                    } else {
-                        alert('Error: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('Failed to update appointment status. Please try again.');
-                }
-            });
-        }
-    }
+    $('.print-record').on('click', function() {
+        const siteName = "{$siteName}";
+        const recordId = $(this).data('record-id');
+        const recordContent = $(this).closest('.accordion-item').find('.accordion-body').html();
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Medical Record</title>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+                <style>
+                    body { padding: 20px; }
+                    @media print { .no-print { display: none !important; } }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h2 class="text-center">\${siteName}</h2>
+                            <h3 class="text-center">Medical Record</h3>
+                        </div>
+                    </div>
+                    \${recordContent}
+                    <div class="row mt-5">
+                        <div class="col-12 text-center no-print">
+                            <button class="btn btn-primary" onclick="window.print()">Print</button>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    window.onload = function() { setTimeout(function() { window.print(); }, 500); };
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    });
 </script>
 EOT;
 
 include '../includes/footer.php';
 ?>
-
