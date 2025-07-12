@@ -280,9 +280,14 @@ include '../includes/header.php';
                                         <div class="accordion-item mb-3">
                                             <h2 class="accordion-header" id="heading<?php echo $index; ?>">
                                                 <button class="accordion-button <?php echo $index !== 0 ? 'collapsed' : ''; ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?php echo $index; ?>" aria-expanded="<?php echo $index === 0 ? 'true' : 'false'; ?>" aria-controls="collapse<?php echo $index; ?>">
-                                                    <div class="d-flex justify-content-between w-100">
-                                                        <span>Visit: <?php echo formatDate($record['appointment_date']); ?></span>
-                                                        <span class="badge bg-info"><?php echo formatTime($record['appointment_time']); ?></span>
+                                                    <div class="d-flex flex-column flex-md-row justify-content-between w-100">
+                                                        <div>
+                                                            <span class="fw-bold">Visit: <?php echo formatDate($record['appointment_date']); ?></span>
+                                                            <span class="ms-md-3 d-block d-md-inline"><?php echo formatTime($record['appointment_time']); ?></span>
+                                                        </div>
+                                                        <div class="text-muted small d-none d-md-block">
+                                                            By Dr. <?php echo htmlspecialchars($record['first_name'] . ' ' . $record['doc_last_name']); ?> on <?php echo formatDate($record['created_at'], 'M j, Y'); ?>
+                                                        </div>
                                                     </div>
                                                 </button>
                                             </h2>
