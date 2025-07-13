@@ -544,7 +544,7 @@ include '../includes/header.php';
             </div>
             
         <?php else: ?>
-        <?php /*
+  
             <!-- All Users View --> 
             <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
@@ -654,7 +654,7 @@ include '../includes/header.php';
 </div>
     </div>
     </div>
-         */ ?>    
+<!-- All Users View -->    
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Manage Users</h1>
             </div>
