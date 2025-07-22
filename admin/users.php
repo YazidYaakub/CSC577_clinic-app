@@ -258,15 +258,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         'consultation_fee' => sanitize($_POST['consultation_fee'] ?? ''),
     ];
 
-    // Validation
+    // Username validation and uniqueness check
     if (empty($newUser['username'])) {
         $errors['username'] = 'Username is required.';
+    } else {
+        $existingUser = $db->fetchOne("SELECT id FROM users WHERE username = ?", [$newUser['username']]);
+        if ($existingUser) {
+            $errors['username'] = 'This username is already registered.';
+        }
     }
 
+    // Email validation and uniqueness check
     if (!filter_var($newUser['email'], FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = 'Valid email is required.';
     } else {
-        // Check for email duplication
         $existingUser = $db->fetchOne("SELECT id FROM users WHERE email = ?", [$newUser['email']]);
         if ($existingUser) {
             $errors['email'] = 'This email is already registered.';
@@ -294,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         }
     }
 
-    // Insert user
+    // Insert user if no errors
     if (empty($errors)) {
         try {
             $passwordHash = password_hash($newUser['password'], PASSWORD_DEFAULT);
