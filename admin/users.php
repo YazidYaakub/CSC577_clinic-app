@@ -333,118 +333,92 @@ include '../includes/header.php';
             <div class="row">
                 <div class="col-md-6">
                     <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
-                                <i class="fas fa-user text-primary me-2"></i>
-                                User Information
-                            </h5>
-                            <span class="badge bg-<?php 
-                                echo $user['role'] === ROLE_PATIENT ? 'info' : 
-                                     ($user['role'] === ROLE_DOCTOR ? 'success' : 'secondary'); 
-                            ?>">
-                                <?php echo ucfirst($user['role']); ?>
-                            </span>
-                        </div>
-                        <div class="card-body">
-                            <form method="post" action="<?php echo $_SERVER['PHP_SELF'] . '?id=' . $specificUserId; ?>">
-                                <div class="mb-3">
-                                    <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username" value="<?php echo $user['username']; ?>" disabled>
-                                </div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-user-plus text-primary me-2"></i> Add New User
+        </h5>
+        <button class="btn btn-sm btn-outline-primary"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#addUserForm"
+                aria-expanded="<?php echo (isset($_POST['create_user']) && !empty($errors)) ? 'true' : 'false'; ?>"
+                aria-controls="addUserForm">
+            Add New User
+        </button>
+    </div>
+    
+    <div id="addUserForm" class="collapse <?php echo (isset($_POST['create_user']) && !empty($errors)) ? 'show' : ''; ?>">
+        <div class="card-body">
+            <?php if (isset($errors['general'])): ?>
+                <div class="alert alert-danger"><?php echo $errors['general']; ?></div>
+            <?php endif; ?>
 
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email*</label>
-                                    <input type="email" class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>" id="email" name="email" value="<?php echo $user['email']; ?>" required>
-                                    <?php if (isset($errors['email'])): ?>
-                                        <div class="invalid-feedback"><?php echo $errors['email']; ?></div>
-                                    <?php endif; ?>
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="first_name" class="form-label">First Name*</label>
-                                        <input type="text" class="form-control <?php echo isset($errors['first_name']) ? 'is-invalid' : ''; ?>" id="first_name" name="first_name" value="<?php echo $user['first_name']; ?>" required>
-                                        <?php if (isset($errors['first_name'])): ?>
-                                            <div class="invalid-feedback"><?php echo $errors['first_name']; ?></div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="last_name" class="form-label">Last Name*</label>
-                                        <input type="text" class="form-control <?php echo isset($errors['last_name']) ? 'is-invalid' : ''; ?>" id="last_name" name="last_name" value="<?php echo $user['last_name']; ?>" required>
-                                        <?php if (isset($errors['last_name'])): ?>
-                                            <div class="invalid-feedback"><?php echo $errors['last_name']; ?></div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo $user['phone']; ?>">
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="date_of_birth" class="form-label">Date of Birth</label>
-                                        <input type="text" class="form-control datepicker-dob" id="date_of_birth" name="date_of_birth" value="<?php echo $user['date_of_birth']; ?>" placeholder="YYYY-MM-DD">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="gender" class="form-label">Gender</label>
-                                        <select class="form-select" id="gender" name="gender">
-                                            <option value="">Select gender</option>
-                                            <option value="male" <?php echo $user['gender'] === 'male' ? 'selected' : ''; ?>>Male</option>
-                                            <option value="female" <?php echo $user['gender'] === 'female' ? 'selected' : ''; ?>>Female</option>
-                                            <option value="other" <?php echo $user['gender'] === 'other' ? 'selected' : ''; ?>>Other</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="address" class="form-label">Address</label>
-                                    <textarea class="form-control" id="address" name="address" rows="3"><?php echo $user['address']; ?></textarea>
-                                </div>
-
-                                <?php if ($user['role'] === ROLE_DOCTOR && isset($doctorDetails)): ?>
-                                    <hr>
-                                    <h5 class="mb-3">Doctor Details</h5>
-
-                                    <div class="mb-3">
-                                        <label for="specialization" class="form-label">Specialization*</label>
-                                        <input type="text" class="form-control <?php echo isset($errors['specialization']) ? 'is-invalid' : ''; ?>" id="specialization" name="specialization" value="<?php echo $doctorDetails['specialization']; ?>" required>
-                                        <?php if (isset($errors['specialization'])): ?>
-                                            <div class="invalid-feedback"><?php echo $errors['specialization']; ?></div>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="qualification" class="form-label">Qualification*</label>
-                                        <textarea class="form-control <?php echo isset($errors['qualification']) ? 'is-invalid' : ''; ?>" id="qualification" name="qualification" rows="3" required><?php echo $doctorDetails['qualification']; ?></textarea>
-                                        <?php if (isset($errors['qualification'])): ?>
-                                            <div class="invalid-feedback"><?php echo $errors['qualification']; ?></div>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="experience_years" class="form-label">Years of Experience</label>
-                                            <input type="number" class="form-control" id="experience_years" name="experience_years" value="<?php echo $doctorDetails['experience_years']; ?>" min="0">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="consultation_fee" class="form-label">Consultation Fee ($)</label>
-                                            <input type="number" class="form-control" id="consultation_fee" name="consultation_fee" value="<?php echo $doctorDetails['consultation_fee']; ?>" min="0" step="0.01">
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="d-grid mt-4">
-                                    <input type="hidden" name="update_user" value="1">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i> Update User
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+            <form method="post" action="users.php">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="add-username" class="form-label">Username*</label>
+                        <input type="text" class="form-control <?php echo isset($errors['username']) ? 'is-invalid' : ''; ?>" id="add-username" name="username" value="<?php echo htmlspecialchars($newUser['username'] ?? '', ENT_QUOTES); ?>" required>
+                        <?php if (isset($errors['username'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['username']; ?></div>
+                        <?php endif; ?>
                     </div>
+                    <div class="col-md-4">
+                        <label for="add-email" class="form-label">Email*</label>
+                        <input type="email" class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>" id="add-email" name="email" value="<?php echo htmlspecialchars($newUser['email'] ?? '', ENT_QUOTES); ?>" required>
+                        <?php if (isset($errors['email'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['email']; ?></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="add-role" class="form-label">Role*</label>
+                        <select class="form-select <?php echo isset($errors['role']) ? 'is-invalid' : ''; ?>" name="role" id="add-role" required onchange="toggleDoctorFields(this.value)">
+                            <option value="">Select role</option>
+                            <option value="patient" <?php echo (isset($newUser['role']) && $newUser['role'] == 'patient') ? 'selected' : ''; ?>>Patient</option>
+                            <option value="doctor" <?php echo (isset($newUser['role']) && $newUser['role'] == 'doctor') ? 'selected' : ''; ?>>Doctor</option>
+                            <option value="admin" <?php echo (isset($newUser['role']) && $newUser['role'] == 'admin') ? 'selected' : ''; ?>>Admin</option>
+                        </select>
+                        <?php if (isset($errors['role'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['role']; ?></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="add-first-name" class="form-label">First Name*</label>
+                        <input type="text" class="form-control <?php echo isset($errors['name']) ? 'is-invalid' : ''; ?>" id="add-first-name" name="first_name" value="<?php echo htmlspecialchars($newUser['first_name'] ?? '', ENT_QUOTES); ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="add-last-name" class="form-label">Last Name*</label>
+                        <input type="text" class="form-control <?php echo isset($errors['name']) ? 'is-invalid' : ''; ?>" id="add-last-name" name="last_name" value="<?php echo htmlspecialchars($newUser['last_name'] ?? '', ENT_QUOTES); ?>" required>
+                        <?php if (isset($errors['name'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['name']; ?></div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="add-password" class="form-label">Password*</label>
+                        <input type="password" class="form-control <?php echo isset($errors['password']) ? 'is-invalid' : ''; ?>" id="add-password" name="password" required>
+                        <?php if (isset($errors['password'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['password']; ?></div>
+                        <?php else: ?>
+                            <div class="form-text">Must include uppercase, lowercase, number, & special character.</div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="add-confirm-password" class="form-label">Confirm Password*</label>
+                        <input type="password" class="form-control <?php echo isset($errors['confirm_password']) ? 'is-invalid' : ''; ?>" id="add-confirm-password" name="confirm_password" required>
+                        <?php if (isset($errors['confirm_password'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['confirm_password']; ?></div>
+                        <?php endif; ?>
+                    </div>
+                    </div>
+                <div class="mt-4 d-grid">
+                    <button type="submit" name="create_user" class="btn btn-success">
+                        <i class="fas fa-user-plus me-2"></i> Create User
+                    </button>
                 </div>
+            </form>
+        </div>
+    </div>
+</div>
 
                 <div class="col-md-6">
                     <div class="card mb-4">
