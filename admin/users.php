@@ -607,100 +607,122 @@ include '../includes/header.php';
             Add New User
         </button>
     </div>
-    <div id="addUserForm" class="collapse">
-        <div class="card-body"><form method="post" action="">
-    <div class="row g-3">
-        <div class="col-md-4">
-            <label class="form-label">Username*</label>
-            <input type="text" class="form-control" name="username" required>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">Email*</label>
-            <input type="email" class="form-control" name="email" required>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">Role*</label>
-            <select class="form-select" name="role" id="roleSelect" required onchange="toggleDoctorFields(this.value)">
-                <option value="">Select role</option>
-                <option value="patient">Patient</option>
-                <option value="doctor">Doctor</option>
-                <option value="admin">Admin</option>
-            </select>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">First Name*</label>
-            <input type="text" class="form-control" name="first_name" required>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Last Name*</label>
-            <input type="text" class="form-control" name="last_name" required>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Password*</label>
-            <input type="password" class="form-control" name="password" required>
-            <div class="form-text text-muted">
-                Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
+    <div id="addUserForm" class="collapse <?php echo (isset($_POST['create_user']) && !empty($errors)) ? 'show' : ''; ?>">
+                    <div class="card-body">
+                        <?php if (isset($errors['general'])): ?>
+                            <div class="alert alert-danger"><?php echo $errors['general']; ?></div>
+                        <?php endif; ?>
+                        <form method="post" action="">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="add-username" class="form-label">Username*</label>
+                                    <input type="text" class="form-control <?php echo isset($errors['username']) ? 'is-invalid' : ''; ?>" id="add-username" name="username" value="<?php echo htmlspecialchars($newUser['username'] ?? '', ENT_QUOTES); ?>" required>
+                                    <?php if (isset($errors['username'])): ?>
+                                        <div class="invalid-feedback"><?php echo $errors['username']; ?></div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="add-email" class="form-label">Email*</label>
+                                    <input type="email" class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>" id="add-email" name="email" value="<?php echo htmlspecialchars($newUser['email'] ?? '', ENT_QUOTES); ?>" required>
+                                    <?php if (isset($errors['email'])): ?>
+                                        <div class="invalid-feedback"><?php echo $errors['email']; ?></div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="add-role" class="form-label">Role*</label>
+                                    <select class="form-select <?php echo isset($errors['role']) ? 'is-invalid' : ''; ?>" name="role" id="add-role" required onchange="toggleDoctorFields(this.value)">
+                                        <option value="">Select role</option>
+                                        <option value="patient" <?php echo (isset($newUser['role']) && $newUser['role'] == 'patient') ? 'selected' : ''; ?>>Patient</option>
+                                        <option value="doctor" <?php echo (isset($newUser['role']) && $newUser['role'] == 'doctor') ? 'selected' : ''; ?>>Doctor</option>
+                                        <option value="admin" <?php echo (isset($newUser['role']) && $newUser['role'] == 'admin') ? 'selected' : ''; ?>>Admin</option>
+                                    </select>
+                                    <?php if (isset($errors['role'])): ?>
+                                        <div class="invalid-feedback"><?php echo $errors['role']; ?></div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-first-name" class="form-label">First Name*</label>
+                                    <input type="text" class="form-control <?php echo isset($errors['name']) ? 'is-invalid' : ''; ?>" id="add-first-name" name="first_name" value="<?php echo htmlspecialchars($newUser['first_name'] ?? '', ENT_QUOTES); ?>" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-last-name" class="form-label">Last Name*</label>
+                                    <input type="text" class="form-control <?php echo isset($errors['name']) ? 'is-invalid' : ''; ?>" id="add-last-name" name="last_name" value="<?php echo htmlspecialchars($newUser['last_name'] ?? '', ENT_QUOTES); ?>" required>
+                                    <?php if (isset($errors['name'])): ?>
+                                        <div class="invalid-feedback"><?php echo $errors['name']; ?></div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-password" class="form-label">Password*</label>
+                                    <input type="password" class="form-control <?php echo isset($errors['password']) ? 'is-invalid' : ''; ?>" id="add-password" name="password" required>
+                                    <?php if (isset($errors['password'])): ?>
+                                        <div class="invalid-feedback"><?php echo $errors['password']; ?></div>
+                                    <?php else: ?>
+                                        <div class="form-text">Must include uppercase, lowercase, number, & special character.</div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="add-confirm-password" class="form-label">Confirm Password*</label>
+                                    <input type="password" class="form-control <?php echo isset($errors['confirm_password']) ? 'is-invalid' : ''; ?>" id="add-confirm-password" name="confirm_password" required>
+                                    <?php if (isset($errors['confirm_password'])): ?>
+                                        <div class="invalid-feedback"><?php echo $errors['confirm_password']; ?></div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone*</label>
+                                    <input type="tel" class="form-control" name="phone" value="<?php echo htmlspecialchars($newUser['phone'] ?? '', ENT_QUOTES); ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" name="date_of_birth" value="<?php echo htmlspecialchars($newUser['date_of_birth'] ?? '', ENT_QUOTES); ?>">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Gender*</label>
+                                    <select class="form-select" name="gender">
+                                        <option value="">Select gender</option>
+                                        <option value="male" <?php echo (isset($newUser['gender']) && $newUser['gender'] == 'male') ? 'selected' : ''; ?>>Male</option>
+                                        <option value="female" <?php echo (isset($newUser['gender']) && $newUser['gender'] == 'female') ? 'selected' : ''; ?>>Female</option>
+                                        <option value="other" <?php echo (isset($newUser['gender']) && $newUser['gender'] == 'other') ? 'selected' : ''; ?>>Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Address*</label>
+                                    <textarea class="form-control" name="address" rows="2"><?php echo htmlspecialchars($newUser['address'] ?? '', ENT_QUOTES); ?></textarea>
+                                </div>
+                                <div id="doctorFields" class="row g-3" style="display: <?php echo (isset($newUser['role']) && $newUser['role'] == 'doctor') ? 'flex' : 'none'; ?>;">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Specialization*</label>
+                                        <input type="text" class="form-control <?php echo isset($errors['specialization']) ? 'is-invalid' : ''; ?>" name="specialization" value="<?php echo htmlspecialchars($newUser['specialization'] ?? '', ENT_QUOTES); ?>">
+                                        <?php if (isset($errors['specialization'])): ?>
+                                            <div class="invalid-feedback"><?php echo $errors['specialization']; ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Qualification*</label>
+                                        <input type="text" class="form-control <?php echo isset($errors['qualification']) ? 'is-invalid' : ''; ?>" name="qualification" value="<?php echo htmlspecialchars($newUser['qualification'] ?? '', ENT_QUOTES); ?>">
+                                        <?php if (isset($errors['qualification'])): ?>
+                                            <div class="invalid-feedback"><?php echo $errors['qualification']; ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Years of Experience</label>
+                                        <input type="number" class="form-control" name="experience_years" min="0" value="<?php echo htmlspecialchars($newUser['experience_years'] ?? '', ENT_QUOTES); ?>">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Consultation Fee (RM)</label>
+                                        <input type="number" class="form-control" name="consultation_fee" min="0" step="0.01" value="<?php echo htmlspecialchars($newUser['consultation_fee'] ?? '', ENT_QUOTES); ?>">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 d-grid">
+                                <button type="submit" name="create_user" class="btn btn-success">
+                                    <i class="fas fa-user-plus me-2"></i> Create User
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Confirm Password*</label>
-            <input type="password" class="form-control" name="confirm_password" required>
-        </div>
 
-        <div class="col-md-6">
-            <label class="form-label">Phone</label>
-            <input type="tel" class="form-control" name="phone">
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Date of Birth</label>
-            <input type="date" class="form-control" name="date_of_birth">
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Gender</label>
-            <select class="form-select" name="gender">
-                <option value="">Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-            </select>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Address</label>
-            <textarea class="form-control" name="address" rows="2"></textarea>
-        </div>
-
-        <!-- Doctor fields -->
-        <div id="doctorFields" class="row g-3" style="display: none;">
-            <div class="col-md-6">
-                <label class="form-label">Specialization*</label>
-                <input type="text" class="form-control" name="specialization">
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Qualification*</label>
-                <input type="text" class="form-control" name="qualification">
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Years of Experience</label>
-                <input type="number" class="form-control" name="experience_years" min="0">
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Consultation Fee (RM)</label>
-                <input type="number" class="form-control" name="consultation_fee" min="0" step="0.01">
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-4 d-grid">
-        <button type="submit" name="create_user" class="btn btn-success">
-            <i class="fas fa-user-plus me-2"></i> Create User
-        </button>
-    </div>
-</form>
-</div>
-    </div>
-    </div>
 <!-- All Users View -->    
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Manage Users</h1>
