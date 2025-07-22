@@ -1,4 +1,9 @@
 <?php
+header("Location: login.php");
+exit;
+?>
+
+<?php
 // Home page for the MySihat Appointment System
 $pageTitle = 'Home';
 require_once 'includes/config.php';
