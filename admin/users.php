@@ -672,7 +672,7 @@ include '../includes/header.php';
                                     <input type="tel" class="form-control" name="phone" value="<?php echo htmlspecialchars($newUser['phone'] ?? '', ENT_QUOTES); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Date of Birth</label>
+                                    <label class="form-label">Date of Birth*</label>
                                     <input type="date" class="form-control" name="date_of_birth" value="<?php echo htmlspecialchars($newUser['date_of_birth'] ?? '', ENT_QUOTES); ?>">
                                 </div>
                                 <div class="col-md-6">
