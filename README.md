@@ -47,7 +47,7 @@ A comprehensive web-based healthcare appointment management system built with PH
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd healthcare-appointment-system
+   cd CSC577_clinic-app
    ```
 
 2. **Initialize the database**
@@ -74,12 +74,12 @@ The system comes with pre-configured test accounts:
 - **Access**: Full system administration
 
 ### Doctor
-- **Username**: `doc1` -- doc1, doc2, doc3 #samepassword
+- **Username**: `doc1` -- doc1, doc2, doc3 #same password
 - **Password**: `Doctor123!`
 - **Specialization**: Physician
 
 ### Patient
-- **Username**: `irfan` --qaiyum, atiqah, aizat #sampassword
+- **Username**: `irfan` --qaiyum, atiqah, aizat #same password
 - **Password**: `User123!`
 
 ## 📁 Project Structure
