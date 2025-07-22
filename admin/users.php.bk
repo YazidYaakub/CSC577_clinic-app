@@ -1,13 +1,3 @@
-Of course. Here's the updated `admin/users.php` file with the necessary validation for email duplication and password complexity.
-
-### Summary of Changes:
-
-1.  **Email Duplication Check**: The code now checks if the provided email already exists in the `users` table, preventing duplicate entries.
-2.  **Password Complexity Validation**: A regular expression has been added to enforce that passwords are at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.
-
-Here is the updated code:
-
-```php
 <?php
 // Admin User Management
 $pageTitle = 'Manage Users';
@@ -48,12 +38,12 @@ try {
     if ($viewingSpecific) {
         // Get specific user
         $user = $db->fetchOne("SELECT * FROM users WHERE id = ?", [$specificUserId]);
-
+        
         if (!$user) {
             setFlashMessage('error', 'User not found.', 'danger');
             redirect('users.php');
         }
-
+        
         // Get additional details based on role
         if ($user['role'] === ROLE_DOCTOR) {
             $doctorDetails = $db->fetchOne(
@@ -61,7 +51,7 @@ try {
                 [$specificUserId]
             );
         }
-
+        
         // Get appointments count
         if ($user['role'] === ROLE_PATIENT) {
             $appointmentsCount = $db->fetchOne(
@@ -74,7 +64,7 @@ try {
                 [$specificUserId]
             );
         }
-
+        
         // Process user update if form is submitted
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
             $formData = [
@@ -86,7 +76,7 @@ try {
                 'gender' => sanitize($_POST['gender'] ?? ''),
                 'date_of_birth' => sanitize($_POST['date_of_birth'] ?? '')
             ];
-
+            
             // Add doctor-specific fields if applicable
             if ($user['role'] === ROLE_DOCTOR) {
                 $formData['specialization'] = sanitize($_POST['specialization'] ?? '');
@@ -94,55 +84,49 @@ try {
                 $formData['experience_years'] = (int) sanitize($_POST['experience_years'] ?? 0);
                 $formData['consultation_fee'] = (float) sanitize($_POST['consultation_fee'] ?? 0);
             }
-
+            
             // Add role to formData
             $formData['role'] = $user['role'];
-
+            
             // Validate email
             if (empty($formData['email'])) {
                 $errors['email'] = 'Email is required';
             } elseif (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL)) {
                 $errors['email'] = 'Invalid email format';
-            } else {
-                // Check for email duplication
-                $existingUser = $db->fetchOne("SELECT id FROM users WHERE email = ? AND id != ?", [$formData['email'], $specificUserId]);
-                if ($existingUser) {
-                    $errors['email'] = 'This email is already in use by another account.';
-                }
             }
-
+            
             // Validate first name
             if (empty($formData['first_name'])) {
                 $errors['first_name'] = 'First name is required';
             }
-
+            
             // Validate last name
             if (empty($formData['last_name'])) {
                 $errors['last_name'] = 'Last name is required';
             }
-
+            
             // Validate doctor-specific fields
             if ($user['role'] === ROLE_DOCTOR) {
                 if (empty($formData['specialization'])) {
                     $errors['specialization'] = 'Specialization is required';
                 }
-
+                
                 if (empty($formData['qualification'])) {
                     $errors['qualification'] = 'Qualification is required';
                 }
             }
-
+            
             // If no errors, update user
             if (empty($errors)) {
                 try {
                     $result = updateProfile($specificUserId, $formData);
-
+                    
                     if ($result['success']) {
                         $successMessage = $result['message'];
-
+                        
                         // Refresh user data
                         $user = $db->fetchOne("SELECT * FROM users WHERE id = ?", [$specificUserId]);
-
+                        
                         if ($user['role'] === ROLE_DOCTOR) {
                             $doctorDetails = $db->fetchOne(
                                 "SELECT * FROM doctor_details WHERE user_id = ?",
@@ -158,40 +142,39 @@ try {
                 }
             }
         }
-
+        
         // Process password reset if requested
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
-            $newPassword = $_POST['new_password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
-
+            $newPassword = sanitize($_POST['new_password'] ?? '');
+            $confirmPassword = sanitize($_POST['confirm_password'] ?? '');
+            
             // Validate password
             if (empty($newPassword)) {
                 $errors['new_password'] = 'New password is required';
-            } elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $newPassword) || strlen($newPassword) < 8) {
-                $errors['new_password'] = 'Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character.';
+            } elseif (strlen($newPassword) < 8) {
+                $errors['new_password'] = 'New password must be at least 8 characters';
             }
-
-
+            
             // Validate confirm password
             if ($newPassword !== $confirmPassword) {
                 $errors['confirm_password'] = 'Passwords do not match';
             }
-
+            
             // If no errors, reset password
             if (empty($errors)) {
                 try {
                     // Hash new password
                     $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
-
+                    
                     // Update password
                     $updated = $db->update(
                         "UPDATE users SET password = ? WHERE id = ?",
                         [$passwordHash, $specificUserId]
                     );
-
+                    
                     if ($updated) {
                         $successMessage = 'Password reset successfully.';
-
+                        
                         // Create notification for user
                         createNotification(
                             $specificUserId,
@@ -208,13 +191,23 @@ try {
         }
     } else {
         // Build query for users list
+        //$query = "SELECT u.*, ";
+        
+        // Add doctor details subquery if needed
+        //if ($viewMode === 'doctors') {
+            //$query .= "(SELECT specialization FROM doctor_details WHERE user_id = u.id) as specialization ";
+        //} else {
+            //$query .= "NULL as specialization ";
+        //}
         $query = "SELECT u.*, d.specialization
                   FROM users u
                   LEFT JOIN doctor_details d ON u.id = d.user_id
                   WHERE 1=1 ";
-
+        
+        //$query .= "FROM users u WHERE 1=1 ";
+        
         $params = [];
-
+        
         // Apply role filter
         if ($viewMode === 'patients') {
             $query .= "AND u.role = ? ";
@@ -226,22 +219,22 @@ try {
             $query .= "AND u.role = ? ";
             $params[] = ROLE_ADMIN;
         }
-
+        
         // Apply search if provided
         if (!empty($searchTerm)) {
             $query .= "AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ? OR u.username LIKE ?) ";
             $searchParam = "%$searchTerm%";
             $params = array_merge($params, [$searchParam, $searchParam, $searchParam, $searchParam, $searchParam]);
         }
-
+        
         $query .= "ORDER BY u.created_at DESC";
-
+        
         $users = $db->fetchAll($query, $params);
     }
 } catch (Exception $e) {
     error_log("User management error: " . $e->getMessage());
     setFlashMessage('error', 'An error occurred while retrieving user data.', 'danger');
-
+    
     // Set defaults
     $users = [];
     $user = null;
@@ -264,23 +257,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     if (empty($newUser['username'])) {
         $errors['username'] = 'Username is required.';
     }
-
     if (!filter_var($newUser['email'], FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = 'Valid email is required.';
-    } else {
-        // Check for email duplication
-        $existingUser = $db->fetchOne("SELECT id FROM users WHERE email = ?", [$newUser['email']]);
-        if ($existingUser) {
-            $errors['email'] = 'This email is already registered.';
-        }
     }
-
-
     if (empty($newUser['first_name']) || empty($newUser['last_name'])) {
         $errors['name'] = 'First and last name are required.';
     }
-    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $newUser['password']) || strlen($newUser['password']) < 8) {
-        $errors['password'] = 'Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character.';
+    if (strlen($newUser['password']) < 8) {
+        $errors['password'] = 'Password must be at least 8 characters.';
     }
     if ($newUser['password'] !== $newUser['confirm_password']) {
         $errors['confirm_password'] = 'Passwords do not match.';
@@ -321,27 +305,29 @@ include '../includes/header.php';
 <div class="row">
     <div class="col-md-12">
         <?php if ($viewingSpecific): ?>
+            <!-- Single User View -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>User Details</h1>
                 <a href="users.php" class="btn btn-outline-primary">
                     <i class="fas fa-arrow-left me-2"></i> Back to Users List
                 </a>
             </div>
-
+            
             <?php if (!empty($successMessage)): ?>
                 <div class="alert alert-success">
                     <?php echo $successMessage; ?>
                 </div>
             <?php endif; ?>
-
+            
             <?php if (isset($errors['general'])): ?>
                 <div class="alert alert-danger">
                     <?php echo $errors['general']; ?>
                 </div>
             <?php endif; ?>
-
+            
             <div class="row">
                 <div class="col-md-6">
+                    <!-- User Information -->
                     <div class="card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
@@ -350,7 +336,7 @@ include '../includes/header.php';
                             </h5>
                             <span class="badge bg-<?php 
                                 echo $user['role'] === ROLE_PATIENT ? 'info' : 
-                                     ($user['role'] === ROLE_DOCTOR ? 'success' : 'secondary'); 
+                                    ($user['role'] === ROLE_DOCTOR ? 'success' : 'secondary'); 
                             ?>">
                                 <?php echo ucfirst($user['role']); ?>
                             </span>
@@ -361,7 +347,7 @@ include '../includes/header.php';
                                     <label for="username" class="form-label">Username</label>
                                     <input type="text" class="form-control" id="username" value="<?php echo $user['username']; ?>" disabled>
                                 </div>
-
+                                
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email*</label>
                                     <input type="email" class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>" id="email" name="email" value="<?php echo $user['email']; ?>" required>
@@ -369,7 +355,7 @@ include '../includes/header.php';
                                         <div class="invalid-feedback"><?php echo $errors['email']; ?></div>
                                     <?php endif; ?>
                                 </div>
-
+                                
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="first_name" class="form-label">First Name*</label>
@@ -386,12 +372,12 @@ include '../includes/header.php';
                                         <?php endif; ?>
                                     </div>
                                 </div>
-
+                                
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone Number</label>
                                     <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo $user['phone']; ?>">
                                 </div>
-
+                                
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="date_of_birth" class="form-label">Date of Birth</label>
@@ -407,16 +393,16 @@ include '../includes/header.php';
                                         </select>
                                     </div>
                                 </div>
-
+                                
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Address</label>
                                     <textarea class="form-control" id="address" name="address" rows="3"><?php echo $user['address']; ?></textarea>
                                 </div>
-
+                                
                                 <?php if ($user['role'] === ROLE_DOCTOR && isset($doctorDetails)): ?>
                                     <hr>
                                     <h5 class="mb-3">Doctor Details</h5>
-
+                                    
                                     <div class="mb-3">
                                         <label for="specialization" class="form-label">Specialization*</label>
                                         <input type="text" class="form-control <?php echo isset($errors['specialization']) ? 'is-invalid' : ''; ?>" id="specialization" name="specialization" value="<?php echo $doctorDetails['specialization']; ?>" required>
@@ -424,7 +410,7 @@ include '../includes/header.php';
                                             <div class="invalid-feedback"><?php echo $errors['specialization']; ?></div>
                                         <?php endif; ?>
                                     </div>
-
+                                    
                                     <div class="mb-3">
                                         <label for="qualification" class="form-label">Qualification*</label>
                                         <textarea class="form-control <?php echo isset($errors['qualification']) ? 'is-invalid' : ''; ?>" id="qualification" name="qualification" rows="3" required><?php echo $doctorDetails['qualification']; ?></textarea>
@@ -432,7 +418,7 @@ include '../includes/header.php';
                                             <div class="invalid-feedback"><?php echo $errors['qualification']; ?></div>
                                         <?php endif; ?>
                                     </div>
-
+                                    
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="experience_years" class="form-label">Years of Experience</label>
@@ -444,7 +430,7 @@ include '../includes/header.php';
                                         </div>
                                     </div>
                                 <?php endif; ?>
-
+                                
                                 <div class="d-grid mt-4">
                                     <input type="hidden" name="update_user" value="1">
                                     <button type="submit" class="btn btn-primary">
@@ -455,8 +441,9 @@ include '../includes/header.php';
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="col-md-6">
+                    <!-- Account Information -->
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="mb-0">
@@ -470,12 +457,12 @@ include '../includes/header.php';
                             <p><strong>Role:</strong> <?php echo ucfirst($user['role']); ?></p>
                             <p><strong>Registered On:</strong> <?php echo formatDate($user['created_at'], 'F j, Y g:i A'); ?></p>
                             <p><strong>Last Updated:</strong> <?php echo formatDate($user['updated_at'], 'F j, Y g:i A'); ?></p>
-
+                            
                             <?php if (isset($appointmentsCount)): ?>
                                 <p>
                                     <strong>Total Appointments:</strong> 
                                     <?php echo number_format($appointmentsCount['count']); ?>
-
+                                    
                                     <?php if ($appointmentsCount['count'] > 0): ?>
                                         <?php if ($user['role'] === ROLE_PATIENT): ?>
                                             <a href="appointments.php?patient_id=<?php echo $user['id']; ?>" class="btn btn-sm btn-outline-primary ms-2">
@@ -491,7 +478,8 @@ include '../includes/header.php';
                             <?php endif; ?>
                         </div>
                     </div>
-
+                    
+                    <!-- Password Reset -->
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="mb-0">
@@ -509,7 +497,7 @@ include '../includes/header.php';
                                     <?php endif; ?>
                                     <div class="form-text">Password must be at least 8 characters and include uppercase, lowercase, number, and special character.</div>
                                 </div>
-
+                                
                                 <div class="mb-3">
                                     <label for="confirm_password" class="form-label">Confirm New Password*</label>
                                     <input type="password" class="form-control <?php echo isset($errors['confirm_password']) ? 'is-invalid' : ''; ?>" id="confirm_password" name="confirm_password" required>
@@ -517,7 +505,7 @@ include '../includes/header.php';
                                         <div class="invalid-feedback"><?php echo $errors['confirm_password']; ?></div>
                                     <?php endif; ?>
                                 </div>
-
+                                
                                 <div class="d-grid">
                                     <input type="hidden" name="reset_password" value="1">
                                     <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to reset this user\'s password?');">
@@ -527,7 +515,8 @@ include '../includes/header.php';
                             </form>
                         </div>
                     </div>
-
+                    
+                    <!-- Actions -->
                     <div class="card">
                         <div class="card-header">
                             <h5 class="mb-0">
@@ -547,15 +536,16 @@ include '../includes/header.php';
                                         <i class="fas fa-trash-alt me-2"></i> Delete User
                                     </button>
                                 </form>
-
+                                
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
+            
         <?php else: ?>
-
+  
+            <!-- All Users View --> 
             <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
@@ -634,6 +624,7 @@ include '../includes/header.php';
             <textarea class="form-control" name="address" rows="2"></textarea>
         </div>
 
+        <!-- Doctor fields -->
         <div id="doctorFields" class="row g-3" style="display: none;">
             <div class="col-md-6">
                 <label class="form-label">Specialization*</label>
@@ -663,10 +654,12 @@ include '../includes/header.php';
 </div>
     </div>
     </div>
-<div class="d-flex justify-content-between align-items-center mb-4">
+<!-- All Users View -->    
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Manage Users</h1>
             </div>
-
+            
+            <!-- Search and Filters -->
             <div class="card mb-4">
                 <div class="card-body">
                     <form method="get" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="row g-3">
@@ -692,7 +685,8 @@ include '../includes/header.php';
                     </form>
                 </div>
             </div>
-
+            
+            <!-- Users Table -->
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">
@@ -754,7 +748,7 @@ include '../includes/header.php';
                                             <td>
                                                 <span class="badge bg-<?php 
                                                     echo $user['role'] === ROLE_PATIENT ? 'info' : 
-                                                         ($user['role'] === ROLE_DOCTOR ? 'success' : 'secondary'); 
+                                                        ($user['role'] === ROLE_DOCTOR ? 'success' : 'secondary'); 
                                                 ?>">
                                                     <?php echo ucfirst($user['role']); ?>
                                                 </span>
@@ -794,4 +788,4 @@ function toggleDoctorFields(role) {
 </script>
 
 <?php include '../includes/footer.php'; ?>
-```
+
