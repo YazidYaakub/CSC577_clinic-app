@@ -250,21 +250,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
         'last_name' => sanitize($_POST['last_name'] ?? ''),
         'password' => $_POST['password'] ?? '',
         'confirm_password' => $_POST['confirm_password'] ?? '',
-        'role' => sanitize($_POST['role'] ?? '')
+        'role' => sanitize($_POST['role'] ?? ''),
+        'phone' => sanitize($_POST['phone'] ?? ''),
+        'date_of_birth' => sanitize($_POST['date_of_birth'] ?? ''),
+        'gender' => sanitize($_POST['gender'] ?? ''),
+        'address' => sanitize($_POST['address'] ?? ''),
+        'specialization' => sanitize($_POST['specialization'] ?? ''),
+        'qualification' => sanitize($_POST['qualification'] ?? ''),
+        'experience_years' => sanitize($_POST['experience_years'] ?? ''),
+        'consultation_fee' => sanitize($_POST['consultation_fee'] ?? ''),
     ];
 
-    // Validation
+    // Username validation and uniqueness check
     if (empty($newUser['username'])) {
         $errors['username'] = 'Username is required.';
+    } else {
+        $existingUser = $db->fetchOne("SELECT id FROM users WHERE username = ?", [$newUser['username']]);
+        if ($existingUser) {
+            $errors['username'] = 'This username is already registered.';
+        }
     }
+
+    // Email validation and uniqueness check
     if (!filter_var($newUser['email'], FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = 'Valid email is required.';
+    } else {
+        $existingUser = $db->fetchOne("SELECT id FROM users WHERE email = ?", [$newUser['email']]);
+        if ($existingUser) {
+            $errors['email'] = 'This email is already registered.';
+        }
     }
+
     if (empty($newUser['first_name']) || empty($newUser['last_name'])) {
         $errors['name'] = 'First and last name are required.';
     }
-    if (strlen($newUser['password']) < 8) {
-        $errors['password'] = 'Password must be at least 8 characters.';
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $newUser['password']) || strlen($newUser['password']) < 8) {
+        $errors['password'] = 'Password must be at least 8 characters and include uppercase, lowercase, a number, and a special character.';
     }
     if ($newUser['password'] !== $newUser['confirm_password']) {
         $errors['confirm_password'] = 'Passwords do not match.';
@@ -272,23 +293,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
     if (!in_array($newUser['role'], [ROLE_PATIENT, ROLE_DOCTOR, ROLE_ADMIN])) {
         $errors['role'] = 'Invalid user role.';
     }
+    if ($newUser['role'] === ROLE_DOCTOR) {
+        if (empty($newUser['specialization'])) {
+            $errors['specialization'] = 'Specialization is required.';
+        }
+        if (empty($newUser['qualification'])) {
+            $errors['qualification'] = 'Qualification is required.';
+        }
+    }
 
-    // Insert user
+    // Insert user if no errors
     if (empty($errors)) {
         try {
             $passwordHash = password_hash($newUser['password'], PASSWORD_DEFAULT);
             $db->insert(
-                "INSERT INTO users (username, email, password, first_name, last_name, role, created_at, updated_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))",
+                "INSERT INTO users (username, email, password, first_name, last_name, role, created_at, updated_at, phone, date_of_birth, gender, address) 
+                 VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), ?, ?, ?, ?)",
                 [
                     $newUser['username'],
                     $newUser['email'],
                     $passwordHash,
                     $newUser['first_name'],
                     $newUser['last_name'],
-                    $newUser['role']
+                    $newUser['role'],
+                    $newUser['phone'],
+                    $newUser['date_of_birth'],
+                    $newUser['gender'],
+                    $newUser['address'],
                 ]
             );
+            //$newUserId = $db->lastInsertId();
+            // If doctor, insert doctor_details
+            if ($newUser['role'] === ROLE_DOCTOR) {
+                $db->insert(
+                    "INSERT INTO doctor_details (user_id, specialization, qualification, experience_years, consultation_fee) VALUES (?, ?, ?, ?, ?)",
+                    [
+                        $newUserId,
+                        $newUser['specialization'],
+                        $newUser['qualification'],
+                        $newUser['experience_years'],
+                        $newUser['consultation_fee']
+                    ]
+                );
+            }
             setFlashMessage('success', 'New user account created.', 'success');
             redirect('users.php');
         } catch (Exception $e) {
