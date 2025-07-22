@@ -319,7 +319,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
                     $newUser['address'],
                 ]
             );
-            $newUserId = $db->lastInsertId();
+            //$newUserId = $db->lastInsertId();
             // If doctor, insert doctor_details
             if ($newUser['role'] === ROLE_DOCTOR) {
                 $db->insert(
