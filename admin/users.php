@@ -1,13 +1,3 @@
-Of course. Here's the updated `admin/users.php` file with the necessary validation for email duplication and password complexity.
-
-### Summary of Changes:
-
-1.  **Email Duplication Check**: The code now checks if the provided email already exists in the `users` table, preventing duplicate entries.
-2.  **Password Complexity Validation**: A regular expression has been added to enforce that passwords are at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.
-
-Here is the updated code:
-
-```php
 <?php
 // Admin User Management
 $pageTitle = 'Manage Users';
@@ -794,4 +784,3 @@ function toggleDoctorFields(role) {
 </script>
 
 <?php include '../includes/footer.php'; ?>
-```
